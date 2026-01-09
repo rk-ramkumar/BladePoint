@@ -22,7 +22,7 @@ export default function Home() {
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
         {/* HUD layer */}
         <div className="fixed inset-0 pointer-events-none z-50">
-          <div className="fixed w-32 top-1 left-1 border-4 border-blue-500 rounded-md">
+          <div className="fixed w-32 top-1 left-1">
             <HandRecognizer {...{ setHandResults, pause, canvasRef }} />
             {pause && (<div className="text-center"> Resume To Play</div>)}
           </div>

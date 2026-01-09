@@ -149,7 +149,7 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
 
     return <video
         ref={videoRef}
-        className={`transform scale-x-[-1] ${pause ? "hidden" : "block"}`}
+        className={`relative rounded-md overflow-hidden border border-white/20 shadow-[0_0_20px_rgba(0,255,0,0.3)] transform scale-x-[-1] ${pause ? "hidden" : "block"}`}
         playsInline
         muted
     />
