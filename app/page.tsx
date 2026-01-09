@@ -1,11 +1,12 @@
 'use client'
 import HandRecognizer from "@/components/HandRecognizer";
 import { PauseButton } from "@/components/PauseButton";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 
 export default function Home() {
   const [pause, setPause] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const setHandResults = () => {
 
@@ -22,11 +23,11 @@ export default function Home() {
         {/* HUD layer */}
         <div className="fixed inset-0 pointer-events-none z-50">
           <div className="fixed w-32 top-1 left-1 border-4 border-blue-500 rounded-md">
-            <HandRecognizer {...{ setHandResults, pause }} />
+            <HandRecognizer {...{ setHandResults, pause, canvasRef }} />
             {pause && (<div className="text-center"> Resume To Play</div>)}
-
           </div>
           <PauseButton paused={pause} onToggle={HandleOnPause} />
+          <canvas ref={canvasRef} className="w-full pointer-events-none transform scale-x-[-1]"></canvas>
         </div>
         {/* End Of HUD layer*/}
 

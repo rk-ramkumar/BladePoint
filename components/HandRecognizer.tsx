@@ -4,8 +4,29 @@ import { useEffect, useRef } from "react"
 type Props = {
     setHandResults: () => void
     pause: boolean
+    canvasRef: any
 }
-const HandRecognizer = ({ setHandResults, pause }: Props) => {
+const HAND_CONNECTIONS: Array<[number, number]> = [
+    // Thumb
+    [0, 1], [1, 2], [2, 3], [3, 4],
+
+    // Index
+    [0, 5], [5, 6], [6, 7], [7, 8],
+
+    // Middle
+    [0, 9], [9, 10], [10, 11], [11, 12],
+
+    // Ring
+    [0, 13], [13, 14], [14, 15], [15, 16],
+
+    // Pinky
+    [0, 17], [17, 18], [18, 19], [19, 20],
+
+    // Palm connections
+    [5, 9], [9, 13], [13, 17]
+];
+
+const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
     const videoRef = useRef<HTMLVideoElement>(null)
     const streamRef = useRef<MediaStream | null>(null);
     const rafRef = useRef<number | null>(null);
@@ -33,6 +54,10 @@ const HandRecognizer = ({ setHandResults, pause }: Props) => {
 
         await startCamera();
         const video = videoRef.current;
+        await new Promise<void>((res) => {
+            video.onloadedmetadata = () => res();
+        });
+        syncCanvasWithVideo(video)
         const handLandmarker = await initModel()
         startDetection(handLandmarker, video);
     }
@@ -41,6 +66,7 @@ const HandRecognizer = ({ setHandResults, pause }: Props) => {
         const loop = () => {
             if (!pause && video.readyState >= 2) {
                 const result = handLandmarker.detectForVideo(video, Date.now());
+                drawHands(result)
                 processDetection(result);
             }
             rafRef.current = requestAnimationFrame(loop);
@@ -56,8 +82,11 @@ const HandRecognizer = ({ setHandResults, pause }: Props) => {
         streamRef.current = stream;
 
         if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-            await videoRef.current.play();
+            const video = videoRef.current;
+            video.srcObject = stream;
+            video.addEventListener("loadeddata", () => {
+                video.play();
+            })
         }
     }
 
@@ -70,8 +99,61 @@ const HandRecognizer = ({ setHandResults, pause }: Props) => {
         }
     }
 
+    function syncCanvasWithVideo(video: HTMLVideoElement) {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-    return <video ref={videoRef} className={`transform scale-x-[-1] ${pause ? "hidden" : "block"}`} playsInline muted />
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        console.log(canvas.width, canvas.height)
+    }
+
+    function drawHands(result: HandLandmarkerResult) {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (const landmarks of result.landmarks) {
+            // Draw connections
+            for (const [start, end] of HAND_CONNECTIONS) {
+                const a = landmarks[start];
+                const b = landmarks[end];
+
+                ctx.beginPath();
+                ctx.moveTo(a.x * canvas.width, a.y * canvas.height);
+                ctx.lineTo(b.x * canvas.width, b.y * canvas.height);
+                ctx.strokeStyle = "lime";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Draw points
+            for (const point of landmarks) {
+                ctx.beginPath();
+                ctx.arc(
+                    point.x * canvas.width,
+                    point.y * canvas.height,
+                    4,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fillStyle = "red";
+                ctx.fill();
+            }
+        }
+    }
+
+    return <video
+        ref={videoRef}
+        className={`transform scale-x-[-1] ${pause ? "hidden" : "block"}`}
+        playsInline
+        muted
+    />
+
 
 }
 
