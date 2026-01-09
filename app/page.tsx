@@ -23,6 +23,7 @@ export default function Home() {
         <div className="fixed inset-0 pointer-events-none z-50">
           <div className="fixed w-32 top-1 left-1 border-4 border-blue-500 rounded-md">
             <HandRecognizer {...{ setHandResults, pause }} />
+            {pause && (<div className="text-center"> Resume To Play</div>)}
 
           </div>
           <PauseButton paused={pause} onToggle={HandleOnPause} />
