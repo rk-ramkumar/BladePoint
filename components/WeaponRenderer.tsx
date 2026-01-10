@@ -8,9 +8,15 @@ type Props = {
     skin: WeaponSkin;
 };
 
+const EPS = 0.5;
 export function WeaponRenderer({ position, delta, skin }: Props) {
+    const effectiveDelta =
+        Math.hypot(delta.x, delta.y) < EPS
+            ? { x: 1, y: 0 } // keep last direction
+            : delta;
+
     const angle =
-        Math.atan2(delta.y, delta.x) * (180 / Math.PI);
+        Math.atan2(effectiveDelta.y, effectiveDelta.x) * (180 / Math.PI);
 
     return (
         <img
@@ -27,7 +33,7 @@ export function WeaponRenderer({ position, delta, skin }: Props) {
                 width: skin.size.width,
                 height: skin.size.height,
 
-                // transform: `rotate(${angle}deg)`,
+                transform: `rotate(${angle}deg)`,
                 transformOrigin: `${skin.pivot.x}px ${skin.pivot.y}px`,
 
                 pointerEvents: "none",

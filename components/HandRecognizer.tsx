@@ -1,13 +1,15 @@
 import { isHandClosed } from "@/utils/gestures"
 import { Katana } from "@/weapons/Katana"
+import { Vec2 } from "@/weapons/Weapon"
 import { WeaponController } from "@/weapons/WeaponController"
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision"
 import { useEffect, useRef } from "react"
 
 type Props = {
-    setHandResults: () => void
+    setHandResults: (res: HandLandmarkerResult) => void
     pause: boolean
-    canvasRef: any
+    canvasRef: any,
+    onHandMove: (pos: Vec2) => void
 }
 const HAND_CONNECTIONS: Array<[number, number]> = [
     // Thumb
@@ -28,12 +30,16 @@ const HAND_CONNECTIONS: Array<[number, number]> = [
     // Palm connections
     [5, 9], [9, 13], [13, 17]
 ];
+const DETECT_FPS = 24;
+const DETECT_INTERVAL = 1000 / DETECT_FPS;
 
-const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
+const HandRecognizer = ({ setHandResults, pause, canvasRef, onHandMove }: Props) => {
     const videoRef = useRef<HTMLVideoElement>(null)
     const streamRef = useRef<MediaStream | null>(null);
     const rafRef = useRef<number | null>(null);
     const controllerRef = useRef(new WeaponController());
+    const pauseRef = useRef(pause);
+    const lastDetectTimeRef = useRef<number>(0);
 
     useEffect(() => {
         controllerRef.current.equip(new Katana());
@@ -47,6 +53,7 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
     }, [])
 
     useEffect(() => {
+        pauseRef.current = pause;
         if (pause) {
             stopCamera();
         } else {
@@ -68,29 +75,33 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
     }
 
     function startDetection(handLandmarker: HandLandmarker, video: HTMLVideoElement) {
-        const loop = () => {
-            if (!pause && video.readyState >= 2) {
-                const result = handLandmarker.detectForVideo(video, Date.now());
+        const loop = (now: number) => {
+            if (!pauseRef.current
+                && video.readyState >= 2
+                && now - lastDetectTimeRef.current >= DETECT_INTERVAL
+            ) {
+                lastDetectTimeRef.current = now;
+                const result = handLandmarker.detectForVideo(video, now);
                 drawHands(result)
                 processDetection(result);
             }
             rafRef.current = requestAnimationFrame(loop);
         };
 
-        loop();
+        rafRef.current = requestAnimationFrame(loop);
     }
 
 
 
     function processDetection(detection: HandLandmarkerResult) {
-        // console.log(detection);
+        setHandResults(detection)
         if (detection.landmarks.length > 0) {
             const hand = detection.landmarks[0];
             const pos = {
-                x: hand[8].x * window.innerWidth,
+                x: (1 - hand[8].x) * window.innerWidth, // Subract by 1 because of camera mirrored
                 y: hand[8].y * window.innerHeight
             }
-
+            onHandMove(pos);
             controllerRef.current.update(pos, isHandClosed(hand));
         }
     }
