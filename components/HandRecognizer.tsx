@@ -1,3 +1,6 @@
+import { isHandClosed } from "@/utils/gestures"
+import { Katana } from "@/weapons/Katana"
+import { WeaponController } from "@/weapons/WeaponController"
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision"
 import { useEffect, useRef } from "react"
 
@@ -30,8 +33,10 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
     const videoRef = useRef<HTMLVideoElement>(null)
     const streamRef = useRef<MediaStream | null>(null);
     const rafRef = useRef<number | null>(null);
+    const controllerRef = useRef(new WeaponController());
 
     useEffect(() => {
+        controllerRef.current.equip(new Katana());
         initialization()
 
         return () => {
@@ -73,6 +78,21 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
         };
 
         loop();
+    }
+
+
+
+    function processDetection(detection: HandLandmarkerResult) {
+        // console.log(detection);
+        if (detection.landmarks.length > 0) {
+            const hand = detection.landmarks[0];
+            const pos = {
+                x: hand[8].x * window.innerWidth,
+                y: hand[8].y * window.innerHeight
+            }
+
+            controllerRef.current.update(pos, isHandClosed(hand));
+        }
     }
 
     async function startCamera() {
@@ -171,16 +191,11 @@ async function initModel() {
                 modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
                 delegate: "GPU"
             },
-            numHands: 2,
+            numHands: 1,
             runningMode: "VIDEO"
         });
 
     return handLandmarker
 }
 
-
-
-function processDetection(detection: HandLandmarkerResult) {
-    console.log(detection);
-}
 
