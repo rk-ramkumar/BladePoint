@@ -1,4 +1,5 @@
 'use client'
+import GameWorld from "@/components/GameWorld";
 import HandRecognizer from "@/components/HandRecognizer";
 import { PauseButton } from "@/components/PauseButton";
 import { useRef, useState } from "react";
@@ -20,6 +21,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+        <GameWorld />
         {/* HUD layer */}
         <div className="fixed inset-0 pointer-events-none z-50">
           <div className="fixed w-32 top-1 left-1">
