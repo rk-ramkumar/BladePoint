@@ -11,7 +11,7 @@ const FRUITSPAWNINTERVEL = 1200;
 
 export default function GameWorld() {
     const [fruits, setFruits] = useState<Fruit[]>([]);
-    console.log(fruits)
+
     useEffect(() => {
         const id = setInterval(() => {
             setFruits(prev => [
