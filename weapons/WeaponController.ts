@@ -17,7 +17,7 @@ export class WeaponController {
     if (this.lastPosition) {
       const delta = {
         x: position.x - this.lastPosition.x,
-        y: position.y - this.lastPosition.y
+        y: position.y - this.lastPosition.y,
       };
       this.weapon.onMove(position, delta);
     }

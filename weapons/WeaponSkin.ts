@@ -6,4 +6,5 @@ export type WeaponSkin = {
     x: number; // grip position inside the image
     y: number;
   };
+   getRotation: (hand: any) => number;
 };

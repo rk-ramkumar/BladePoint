@@ -1,7 +1,4 @@
-import { isHandClosed } from "@/utils/gestures"
-import { Katana } from "@/weapons/Katana"
 import { Vec2 } from "@/weapons/Weapon"
-import { WeaponController } from "@/weapons/WeaponController"
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision"
 import { useEffect, useRef } from "react"
 
@@ -9,7 +6,6 @@ type Props = {
     setHandResults: (res: HandLandmarkerResult) => void
     pause: boolean
     canvasRef: any,
-    onHandMove: (pos: Vec2) => void
 }
 const HAND_CONNECTIONS: Array<[number, number]> = [
     // Thumb
@@ -33,16 +29,14 @@ const HAND_CONNECTIONS: Array<[number, number]> = [
 const DETECT_FPS = 24;
 const DETECT_INTERVAL = 1000 / DETECT_FPS;
 
-const HandRecognizer = ({ setHandResults, pause, canvasRef, onHandMove }: Props) => {
+const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
     const videoRef = useRef<HTMLVideoElement>(null)
     const streamRef = useRef<MediaStream | null>(null);
     const rafRef = useRef<number | null>(null);
-    const controllerRef = useRef(new WeaponController());
     const pauseRef = useRef(pause);
     const lastDetectTimeRef = useRef<number>(0);
 
     useEffect(() => {
-        controllerRef.current.equip(new Katana());
         initialization()
 
         return () => {
@@ -95,15 +89,6 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef, onHandMove }: Props)
 
     function processDetection(detection: HandLandmarkerResult) {
         setHandResults(detection)
-        if (detection.landmarks.length > 0) {
-            const hand = detection.landmarks[0];
-            const pos = {
-                x: (1 - hand[8].x) * window.innerWidth, // Subract by 1 because of camera mirrored
-                y: hand[8].y * window.innerHeight
-            }
-            onHandMove(pos);
-            controllerRef.current.update(pos, isHandClosed(hand));
-        }
     }
 
     async function startCamera() {
@@ -136,7 +121,6 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef, onHandMove }: Props)
 
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        console.log(canvas.width, canvas.height)
     }
 
     function drawHands(result: HandLandmarkerResult) {
