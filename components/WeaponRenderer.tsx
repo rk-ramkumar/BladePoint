@@ -73,7 +73,7 @@ export function WeaponRenderer({ handLandmarks }: Props) {
     }
 
     return (
-        <div className="fixed inset-0 bg-black">
+        <div className="fixed inset-0">
             <WeaponModel
                 position={pos}
                 delta={delta}
