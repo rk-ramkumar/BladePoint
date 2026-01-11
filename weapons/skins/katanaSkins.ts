@@ -3,7 +3,7 @@ import { slashObject, WeaponSkin } from "../WeaponSkin";
 
 const defaultSlashProp: slashObject = {
   sprite: null,
-  spriteSrc: "/assets/effects/red-slash.png",
+  spriteSrc: "/assets/effects/slash-hit/red-slash.png",
   FWidth: 128,
   FHeight: 128,
   FCount: 9,
@@ -13,17 +13,18 @@ const defaultSlashProp: slashObject = {
 export const KatanaClean: WeaponSkin = {
   id: "katana_clean",
   image: "/assets/katana/KatanaClean.png",
-  size: { width: 388, height: 232 },
-  pivot: { x: 288, y: 45 },
+  size: { width: 194, height: 116 },
+  pivot: { x: 94, y: 45 },
   getRotation(intent: GestureIntent) {
-    if (!intent.triggerPressed) {
-      return 90;
-    } else {
+    if (intent.triggerPressed) {
       return 0;
+    } else {
+      return 90;
     }
   },
   slashProp: {
     ...defaultSlashProp,
+    spriteSrc: "/assets/effects/slash-hit/blue-slash.png",
     FCount: 7,
   },
   getSlashCoordinate: getTwoRowCoordinate,
@@ -32,8 +33,8 @@ export const KatanaClean: WeaponSkin = {
 export const KatanaBloody: WeaponSkin = {
   id: "katana_bloody",
   image: "/assets/katana/KatanaBloody.png",
-  size: { width: 321, height: 184 },
-  pivot: { x: 221, y: 144 },
+  size: { width: 161, height: 92 },
+  pivot: { x: 61, y: 64 },
   getRotation: getDefaultRotation,
   slashProp: defaultSlashProp,
   getSlashCoordinate: getTwoRowCoordinate,
@@ -47,10 +48,10 @@ export function initSlashImage(skin: WeaponSkin) {
 
 // Helpers
 function getDefaultRotation(intent: GestureIntent) {
-  if (!intent.triggerPressed) {
-    return 70;
+  if (intent.triggerPressed) {
+    return -120;
   } else {
-    return 0;
+    return 70;
   }
 }
 

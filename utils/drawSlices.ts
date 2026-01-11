@@ -7,17 +7,24 @@ export type Slash = {
   angle: number;
   frame: number;
   life: number;
+  flipX: boolean;
 };
 
 export const slashes: Slash[] = [];
 
-export function spawnSlash(x: number, y: number, angle: number) {
+export function spawnSlash(
+  x: number,
+  y: number,
+  angle: number,
+  flipX: boolean
+) {
   slashes.push({
     x,
     y,
     angle,
     frame: 0,
     life: 1,
+    flipX,
   });
 }
 export type Slice = {
@@ -79,7 +86,10 @@ export function drawSlashes(
 
     ctx.save();
     ctx.translate(s.x, s.y);
-    ctx.rotate(180);
+    ctx.rotate(s.angle);
+    if (s.flipX) {
+      ctx.scale(-1, 1);
+    }
     ctx.imageSmoothingEnabled = false;
     const { x, y } = weaponSkin.getSlashCoordinate(frameIndex, slashProp);
 

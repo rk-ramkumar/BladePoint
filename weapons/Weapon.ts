@@ -16,7 +16,11 @@ export interface Weapon {
   onAttackStart(): void;
   onAttackEnd(): void;
   onHandedness(h: "left" | "right"): void;
-  getVisualState(): { flipX: boolean; rotationSpeed: number };
+  getVisualState(): {
+    flipX: boolean;
+    rotationSpeed: number;
+    rotationDeg: number;
+  };
 }
 
 export class BaseWeapon implements Weapon {
@@ -26,6 +30,7 @@ export class BaseWeapon implements Weapon {
   handedness: "left" | "right" = "right";
 
   protected isAttacking = false;
+  protected rotationSpeed = 0.15;
   private SMOOTH_FACTOR = 0.35;
 
   constructor(prop?: any) {
@@ -40,10 +45,12 @@ export class BaseWeapon implements Weapon {
 
   onAttackStart() {
     this.isAttacking = true;
+    console.log("Attack Start");
   }
 
   onAttackEnd() {
     this.isAttacking = false;
+    console.log("Attack End");
   }
 
   onHandedness(h: "left" | "right") {
@@ -67,7 +74,8 @@ export class BaseWeapon implements Weapon {
   getVisualState() {
     return {
       flipX: this.handedness === "left",
-      rotationSpeed: 0.15,
+      rotationSpeed: this.rotationSpeed,
+      rotationDeg: 0,
     };
   }
 }

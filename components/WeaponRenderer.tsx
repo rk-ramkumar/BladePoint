@@ -33,7 +33,6 @@ export function WeaponRenderer({ intent }: Props) {
             <WeaponModel
                 skin={weaponSkin}
                 weapon={weaponRef.current}
-                intent={intent}
             />
             <SliceCanvas {...{ weaponSkin }} />
         </div>
