@@ -2,16 +2,16 @@
 import { useEffect, useState } from "react";
 import BackgroundLayer from "./BackGroundLayer";
 
-type Fruit = {
+type Enemy = {
     id: string;
     x: number;
     y: number;
     speed: number
 };
-const FRUITSPAWNINTERVEL = 1200;
+const ENEMYSPAWNINTERVEL = 1200;
 
 export default function GameWorld() {
-    const [fruits, setFruits] = useState<Fruit[]>([]);
+    const [enemies, setEnemies] = useState<Enemy[]>([]);
     const [stage, setStage] = useState(0);
 
     useEffect(() => {
@@ -24,7 +24,7 @@ export default function GameWorld() {
 
     useEffect(() => {
         const id = setInterval(() => {
-            setFruits(prev => [
+            setEnemies(prev => [
                 ...prev,
                 {
                     id: crypto.randomUUID(),
@@ -33,7 +33,7 @@ export default function GameWorld() {
                     speed: 2 + Math.random() * 3
                 }
             ]);
-        }, FRUITSPAWNINTERVEL);
+        }, ENEMYSPAWNINTERVEL);
 
         return () => clearInterval(id);
     }, []);
@@ -42,10 +42,10 @@ export default function GameWorld() {
         let animationId: number;
 
         const update = () => {
-            setFruits(prev =>
+            setEnemies(prev =>
                 prev
-                    .map(fruit => ({ ...fruit, y: fruit.y + fruit.speed }))
-                    .filter(fruit => fruit.y < window.innerHeight - 50)
+                    .map(enemy => ({ ...enemy, y: enemy.y + enemy.speed }))
+                    .filter(enemy => enemy.y < window.innerHeight - 50)
             )
 
             animationId = requestAnimationFrame(update);
@@ -58,7 +58,7 @@ export default function GameWorld() {
     return (
         <>
             <BackgroundLayer {...{ stage }} />
-            {fruits.map(f => (
+            {enemies.map(f => (
                 <div
                     key={f.id}
                     className="absolute w-12 h-12 bg-orange-500 rounded-full"

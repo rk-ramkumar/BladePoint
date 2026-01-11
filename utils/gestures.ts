@@ -25,7 +25,6 @@ export function getGestureIntent(
 ): GestureIntent {
   const pinch = dist(hand[4], hand[8]) < PINCH_THRESHOLD;
 
-  // const handedness = hand[17].x < hand[5].x ? "right" : "left";
   return {
     aimPosition: {
       x: (1 - hand[8].x) * window.innerWidth,
