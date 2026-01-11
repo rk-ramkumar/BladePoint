@@ -1,13 +1,16 @@
 'use client'
-import { drawSlices } from "@/utils/drawSlices";
+import { drawSlashes } from "@/utils/drawSlices";
+import { initSlashImage } from "@/weapons/skins/katanaSkins";
+import { WeaponSkin } from "@/weapons/WeaponSkin";
 import { useEffect, useRef } from "react";
 
-export default function SliceCanvas() {
+export default function SliceCanvas({ weaponSkin }: { weaponSkin: WeaponSkin }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         const canvas = canvasRef.current!;
         const ctx = canvas.getContext("2d")!;
+        initSlashImage(weaponSkin);
 
         function resize() {
             canvas.width = window.innerWidth;
@@ -17,13 +20,20 @@ export default function SliceCanvas() {
         resize();
         window.addEventListener("resize", resize);
 
-        function loop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawSlices(ctx);
-            requestAnimationFrame(loop);
+        let lastTime = performance.now()
+
+        function loop(now: number) {
+            const deltaTime = (now - lastTime) / 1000
+            lastTime = now
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            drawSlashes(ctx, deltaTime, weaponSkin)
+
+            requestAnimationFrame(loop)
         }
 
-        loop();
+        requestAnimationFrame(loop)
+
         return () => window.removeEventListener("resize", resize);
     }, []);
 
