@@ -1,8 +1,7 @@
 import { spawnSlash } from "@/utils/drawSlices";
-import { Weapon, Vec2 } from "./Weapon";
-import { WeaponSkin } from "./WeaponSkin";
+import { Vec2, BaseWeapon } from "./Weapon";
+import { GestureIntent } from "@/utils/gestures";
 
-const MIN_SLICE_SPEED = 15;
 function bladeTip(grip: Vec2, angleDeg: number, bladeLength: number): Vec2 {
   const rad = (angleDeg * Math.PI) / 180;
 
@@ -11,42 +10,21 @@ function bladeTip(grip: Vec2, angleDeg: number, bladeLength: number): Vec2 {
     y: grip.y + Math.sin(rad) * bladeLength,
   };
 }
-export class Katana implements Weapon {
+export class Katana extends BaseWeapon {
   name = "Katana";
-
-  private isAttacking = false;
   private lastPos: Vec2 | null = null;
-  skin: WeaponSkin | null = null;
-  public handLandmarks: any;
-
-  constructor(prop: any) {
-    this.skin = prop?.skin;
-  }
 
   onEquip() {
     console.log("🗡 Katana equipped");
   }
 
-  onUnequip() {}
-
-  onAttackStart() {
-    this.isAttacking = true;
-    this.lastPos = null;
-  }
-
-  onAttackEnd() {
-    this.isAttacking = false;
-    this.lastPos = null;
-  }
-
-  onMove(position: Vec2, delta: Vec2) {
+  onMove(intent: GestureIntent) {
+    super.onMove(intent);
     if (!this.isAttacking || !this.skin) return;
 
-    const speed = Math.hypot(delta.x, delta.y);
-    if (speed < MIN_SLICE_SPEED) return;
-    const angle = this.skin.getRotation(this.handLandmarks);
+    const angle = this.skin.getRotation(intent);
 
-    const currTip = bladeTip(position, angle, -this.skin.pivot.x);
+    const currTip = bladeTip(intent.aimPosition, angle, -this.skin.pivot.x);
     if (this.lastPos) {
       const angleRad = Math.atan2(
         currTip.y - this.lastPos.y,

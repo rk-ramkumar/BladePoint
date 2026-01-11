@@ -85,8 +85,6 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
         rafRef.current = requestAnimationFrame(loop);
     }
 
-
-
     function processDetection(detection: HandLandmarkerResult) {
         setHandResults(detection)
     }

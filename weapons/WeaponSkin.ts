@@ -1,3 +1,5 @@
+import { GestureIntent } from "@/utils/gestures";
+
 export type WeaponSkin = {
   id: string;
   image: string;
@@ -6,7 +8,7 @@ export type WeaponSkin = {
     x: number; // grip position inside the image
     y: number;
   };
-  getRotation: (hand: any) => number;
+  getRotation: (intent: GestureIntent) => number;
   getSlashCoordinate: (
     frameIndex: number,
     props: slashObject

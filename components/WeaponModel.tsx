@@ -1,15 +1,14 @@
 'use client'
 import { WeaponSkin } from "@/weapons/WeaponSkin";
-import { Vec2 } from "@/weapons/Weapon";
+import { Weapon } from "@/weapons/Weapon";
 import { useRef } from "react";
+import { GestureIntent } from "@/utils/gestures";
 
 type Props = {
-    position: Vec2; // world grip position
-    delta: Vec2;    // movement delta
     skin: WeaponSkin;
-    handLandmarks: any | null;
+    weapon: Weapon;
+    intent: GestureIntent | null;
 };
-const ROTATION_SMOOTH = 0.15; // 0.1 slow, 0.2 fast
 
 function lerpAngle(current: number, target: number, t: number) {
     let diff = target - current;
@@ -17,17 +16,18 @@ function lerpAngle(current: number, target: number, t: number) {
     return current + diff * t;
 }
 
-export function WeaponModel({ position, skin, handLandmarks }: Props) {
+export function WeaponModel({ skin, weapon, intent }: Props) {
     const rotationRef = useRef(0);
+    const visual = weapon.getVisualState();
 
-    const targetRotation = handLandmarks
-        ? skin.getRotation(handLandmarks)
+    const targetRotation = intent
+        ? skin.getRotation(intent)
         : rotationRef.current;
 
     rotationRef.current = lerpAngle(
         rotationRef.current,
         targetRotation,
-        ROTATION_SMOOTH
+        visual.rotationSpeed
     );
 
     return (
@@ -37,11 +37,11 @@ export function WeaponModel({ position, skin, handLandmarks }: Props) {
             // className="border-2"
             style={{
                 position: "fixed",
-                left: position.x - skin.pivot.x,
-                top: position.y - skin.pivot.y,
+                left: weapon.position.x - skin.pivot.x,
+                top: weapon.position.y - skin.pivot.y,
                 width: skin.size.width,
                 height: skin.size.height,
-                transform: `rotate(${rotationRef.current}deg)`,
+                transform: `scaleX(${visual.flipX ? -1 : 1}) rotate(${rotationRef.current}deg)`,
                 transformOrigin: `${skin.pivot.x}px ${skin.pivot.y}px`,
                 pointerEvents: "none",
                 userSelect: "none"

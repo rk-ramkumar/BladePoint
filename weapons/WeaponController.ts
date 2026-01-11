@@ -1,9 +1,8 @@
+import { GestureIntent } from "@/utils/gestures";
 import { Weapon, Vec2 } from "./Weapon";
 
 export class WeaponController {
   private weapon: Weapon | null = null;
-  private lastPosition: Vec2 | null = null;
-  private attacking = false;
 
   equip(weapon: Weapon) {
     this.weapon?.onUnequip();
@@ -11,27 +10,19 @@ export class WeaponController {
     this.weapon.onEquip();
   }
 
-  update(position: Vec2, isClosed: boolean) {
+  update(intent: GestureIntent) {
     if (!this.weapon) return;
 
-    if (this.lastPosition) {
-      const delta = {
-        x: position.x - this.lastPosition.x,
-        y: position.y - this.lastPosition.y,
-      };
-      this.weapon.onMove(position, delta);
+    this.weapon.onMove(intent);
+
+    if (intent.triggerPressed) {
+      this.weapon.onAttackStart();
     }
 
-    if (isClosed && !this.attacking) {
-      this.attacking = true;
-      this.weapon.onAttackStart(position);
+    if (intent.triggerReleased) {
+      this.weapon.onAttackEnd();
     }
 
-    if (!isClosed && this.attacking) {
-      this.attacking = false;
-      this.weapon.onAttackEnd(position);
-    }
-
-    this.lastPosition = position;
+    this.weapon.onHandedness?.(intent.handedness);
   }
 }

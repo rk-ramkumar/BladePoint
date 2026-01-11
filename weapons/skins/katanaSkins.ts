@@ -1,4 +1,4 @@
-import { isHandClosed } from "@/utils/gestures";
+import { GestureIntent } from "@/utils/gestures";
 import { slashObject, WeaponSkin } from "../WeaponSkin";
 
 const defaultSlashProp: slashObject = {
@@ -15,8 +15,8 @@ export const KatanaClean: WeaponSkin = {
   image: "/assets/katana/KatanaClean.png",
   size: { width: 388, height: 232 },
   pivot: { x: 288, y: 45 },
-  getRotation(hand: any) {
-    if (!isHandClosed(hand)) {
+  getRotation(intent: GestureIntent) {
+    if (!intent.triggerPressed) {
       return 90;
     } else {
       return 0;
@@ -46,8 +46,8 @@ export function initSlashImage(skin: WeaponSkin) {
 }
 
 // Helpers
-function getDefaultRotation(hand: any) {
-  if (!isHandClosed(hand)) {
+function getDefaultRotation(intent: GestureIntent) {
+  if (!intent.triggerPressed) {
     return 70;
   } else {
     return 0;

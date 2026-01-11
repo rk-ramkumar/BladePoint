@@ -3,20 +3,30 @@ import GameWorld from "@/components/GameWorld";
 import HandRecognizer from "@/components/HandRecognizer";
 import { PauseButton } from "@/components/PauseButton";
 import { WeaponRenderer } from "@/components/WeaponRenderer";
+import { GestureIntent, getGestureIntent } from "@/utils/gestures";
 import { HandLandmarkerResult, NormalizedLandmark } from "@mediapipe/tasks-vision";
 import { useRef, useState } from "react";
 
 
 export default function Home() {
   const [pause, setPause] = useState(false)
+  const [intent, setIntent] = useState<GestureIntent | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [handLandmarks, setHandLandmarks] =
-    useState<NormalizedLandmark[] | null>(null);
-  const [res, setRes] = useState<HandLandmarkerResult | null>(null)
+  const prevPinchRef = useRef(false);
 
   const setHandResults = (result: HandLandmarkerResult) => {
-    setRes(result);
-    setHandLandmarks(result.landmarks[0] ?? null)
+    if (result.landmarks.length > 0) {
+      const hand = result.landmarks[0];
+      const handedness = result.handedness[0][0].displayName.toLowerCase()
+      const gestureIntent = getGestureIntent(
+        hand,
+        prevPinchRef.current,
+        handedness
+      );
+
+      prevPinchRef.current = gestureIntent.triggerDown;
+      setIntent(gestureIntent);
+    }
   }
 
   function HandleOnPause(): void {
@@ -42,7 +52,7 @@ export default function Home() {
         />
       </div>
 
-      <WeaponRenderer handLandmarks={handLandmarks} />
+      <WeaponRenderer {...{ intent }} />
     </>
   );
 }
