@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from "react";
+import BackgroundLayer from "./BackGroundLayer";
 
 type Fruit = {
     id: string;
@@ -11,6 +12,15 @@ const FRUITSPAWNINTERVEL = 1200;
 
 export default function GameWorld() {
     const [fruits, setFruits] = useState<Fruit[]>([]);
+    const [stage, setStage] = useState(0);
+
+    useEffect(() => {
+        const id = setInterval(() => {
+            setStage(s => s + 1);
+        }, 20000);
+
+        return () => clearInterval(id);
+    }, []);
 
     useEffect(() => {
         const id = setInterval(() => {
@@ -47,6 +57,7 @@ export default function GameWorld() {
 
     return (
         <>
+            <BackgroundLayer {...{ stage }} />
             {fruits.map(f => (
                 <div
                     key={f.id}

@@ -24,22 +24,25 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <GameWorld />
-        {/* HUD layer */}
-        <div className="fixed inset-0 pointer-events-none z-50">
-          <div className="fixed w-32 top-1 left-1">
-            <HandRecognizer {...{ setHandResults, pause, canvasRef }} />
-            {pause && (<div className="text-center"> Resume To Play</div>)}
-          </div>
-          <PauseButton paused={pause} onToggle={HandleOnPause} />
-          <canvas ref={canvasRef} className="w-full pointer-events-none transform scale-x-[-1]"></canvas>
-        </div>
-        {/* End Of HUD layer*/}
+    <>
+      {/* GAME WORLD (background + enemies) */}
+      <GameWorld />
 
-        <WeaponRenderer handLandmarks={handLandmarks} />
-      </main>
-    </div>
+      {/* HUD + weapon */}
+      <div className="fixed inset-0 pointer-events-none z-50">
+        <div className="fixed w-32 top-1 left-1">
+          <HandRecognizer {...{ pause, setHandResults, canvasRef }} />
+          {pause && <div className="text-center text-white">Resume To Play</div>}
+        </div>
+
+        <PauseButton paused={pause} onToggle={HandleOnPause} />
+        <canvas
+          ref={canvasRef}
+          className="w-full pointer-events-none transform scale-x-[-1]"
+        />
+      </div>
+
+      <WeaponRenderer handLandmarks={handLandmarks} />
+    </>
   );
 }
