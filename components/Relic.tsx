@@ -5,15 +5,21 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import RelicParticles from "./RelicParticles";
 
+const RELIC_MAX_HP = 100;
+const CORRUPTION_THRESHOLDS = [
+    { min: 0.7, stage: 0 },
+    { min: 0.4, stage: 1 },
+    { min: 0.15, stage: 2 },
+    { min: 0, stage: 3 },
+];
+
 function getCorruption(hp: number) {
-    if (hp > 70) return 0;
-    if (hp > 40) return 1;
-    if (hp > 15) return 2;
-    return 3;
+    const ratio = hp / RELIC_MAX_HP;
+    return CORRUPTION_THRESHOLDS.find(t => ratio > t.min)!.stage;
 }
 
 export default function Relic() {
-    const [hp, setHp] = useState(100);
+    const [hp, setHp] = useState(RELIC_MAX_HP);
     const [hitFlash, setHitFlash] = useState(false);
     const proximityRef = useRef(0);
 
