@@ -30,7 +30,7 @@ function createGroundEnemy({ id, screen }: EnemyProps): Enemy {
     ...data,
     id,
     type: EnemyType.Ground,
-    state: EnemyState.Moving,
+    state: EnemyState.Spawning,
     position: {
       x: fromLeft ? -120 : screen.w + 120,
       y: screen.h - 160,
@@ -53,7 +53,7 @@ function createFlyEnemy({ id, screen }: EnemyProps): Enemy {
     ...data,
     id,
     type: EnemyType.Flying,
-    state: EnemyState.Moving,
+    state: EnemyState.Spawning,
     position: {
       x: positionX,
       y: -120,

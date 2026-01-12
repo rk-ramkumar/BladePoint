@@ -3,6 +3,7 @@ import { BaseWeapon } from "./Weapon";
 import { GestureIntent } from "@/utils/gestures";
 import { lerpAngle } from "@/utils/math";
 import { gameEvents } from "@/game/GameEvents";
+import { audioManager } from "@/sound/AudioManager";
 
 export class Katana extends BaseWeapon {
   name = "Katana";
@@ -20,11 +21,7 @@ export class Katana extends BaseWeapon {
     super.onAttackStart();
     if (!this.skin) return;
 
-    gameEvents.emit({
-      type: "PLAY_SOUND",
-      sound: "KATANA_SWING",
-      volume: 0.7,
-    });
+    audioManager.play("KATANA_SWING");
 
     const multiplier = this.handedness === "left" ? -1 : 1;
     spawnSlash(

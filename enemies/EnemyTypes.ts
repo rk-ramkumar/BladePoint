@@ -5,6 +5,7 @@ export enum EnemyType {
   Flying,
 }
 export enum EnemyState {
+  Spawning,
   Moving,
   Attacking,
   Dead,

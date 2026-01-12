@@ -6,7 +6,6 @@ import { Enemy } from "@/enemies/EnemyTypes";
 import EnemyRenderer from "./EnemyRenderer";
 import Relic from "./Relic";
 import { gameEvents } from "@/game/GameEvents";
-import FlashOverlay from "./FlashOverlay";
 import DebugHitCanvas from "./DebugHitCanvas";
 import { audioManager } from "@/sound/AudioManager";
 
@@ -47,15 +46,10 @@ export default function GameWorld() {
             );
         });
 
-        const offPlaySound = gameEvents.on("PLAY_SOUND", e => {
-            audioManager.play(e.sound, e.volume);
-        });
-
         return () => {
             offGameOver();
             offEnemyKilled();
             offDamage()
-            offPlaySound();
         }
 
     }, [])

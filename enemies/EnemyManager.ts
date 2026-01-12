@@ -3,6 +3,7 @@ import { createEnemy } from "./EnemyFactory";
 import { DamageShape, gameEvents } from "@/game/GameEvents";
 import { moveTowards, Vec2 } from "@/utils/math";
 import { lineCircleHit } from "@/utils/geometry";
+import { audioManager } from "@/sound/AudioManager";
 
 export type EnemyUpdateResult = {
   enemies: Enemy[];
@@ -39,6 +40,12 @@ export function updateEnemies(
   const next: Enemy[] = [];
 
   for (const enemy of enemies) {
+    if (enemy.state === EnemyState.Spawning) {
+      enemy.state = EnemyState.Moving;
+      next.push(enemy);
+      continue;
+    }
+
     if (enemy.state === EnemyState.Dying) {
       const remaining = (enemy.deathTimer ?? 0) - dt;
 
@@ -150,6 +157,8 @@ export function applyDamage(
     const nextHp = enemy.hp - damage;
 
     if (nextHp <= 0) {
+      audioManager.play("ENEMY_DEATH");
+
       return {
         ...enemy,
         hp: 0,
@@ -157,6 +166,7 @@ export function applyDamage(
       };
     }
 
+    audioManager.play("ENEMY_HIT");
     return {
       ...enemy,
       hp: nextHp,
