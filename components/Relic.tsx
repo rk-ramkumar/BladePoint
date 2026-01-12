@@ -1,10 +1,24 @@
 'use client';
 
-type Props = {
-    hp: number;
-};
+import { gameEvents } from "@/game/GameEvents";
+import { useEffect, useState } from "react";
 
-export default function Relic({ hp }: Props) {
+export default function Relic() {
+    const [hp, setHp] = useState(100);
+
+    useEffect(() => {
+        gameEvents.on("ENEMY_ATTACK", e => {
+            setHp(h => {
+                const next = Math.max(0, h - e.damage);
+                console.log("relic stat:", { h, next, damage: e.damage })
+                if (next === 0) {
+                    gameEvents.emit({ type: "GAME_OVER" });
+                }
+                return next;
+            });
+        });
+    }, []);
+
     return (
         <div
             className="animate-bounce"
