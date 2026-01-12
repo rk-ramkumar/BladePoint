@@ -1,4 +1,4 @@
-import { Enemy, EnemyType } from "./EnemyTypes";
+import { Enemy, EnemyState, EnemyType } from "./EnemyTypes";
 import { ENEMY_CONFIG } from "./EnemyConfig";
 
 const bulidEnemy = {
@@ -12,26 +12,25 @@ export function createEnemy(
 ): Enemy {
   const id = crypto.randomUUID();
 
-  return bulidEnemy[type]({ id, type, screen });
+  return bulidEnemy[type]({ id, screen });
 }
 
 type EnemyProps = {
   id: string;
-  type: EnemyType;
   screen: { w: number; h: number };
 };
 
-function createGroundEnemy({ id, type, screen }: EnemyProps): Enemy {
+function createGroundEnemy({ id, screen }: EnemyProps): Enemy {
   const data =
     ENEMY_CONFIG.ground[Math.floor(Math.random() * ENEMY_CONFIG.ground.length)];
 
   const fromLeft = Math.random() > 0.5;
 
   return {
+    ...data,
     id,
-    type,
-    sprite: data.sprite,
-    hp: data.hp,
+    type: EnemyType.Ground,
+    state: EnemyState.Moving,
     position: {
       x: fromLeft ? -120 : screen.w + 120,
       y: screen.h - 160,
@@ -43,7 +42,7 @@ function createGroundEnemy({ id, type, screen }: EnemyProps): Enemy {
   };
 }
 
-function createFlyEnemy({ id, type, screen }: EnemyProps): Enemy {
+function createFlyEnemy({ id, screen }: EnemyProps): Enemy {
   const data =
     ENEMY_CONFIG.flying[Math.floor(Math.random() * ENEMY_CONFIG.flying.length)];
 
@@ -51,10 +50,10 @@ function createFlyEnemy({ id, type, screen }: EnemyProps): Enemy {
   const positionX = Math.random() * screen.w;
 
   return {
+    ...data,
     id,
-    type,
-    sprite: data.sprite,
-    hp: data.hp,
+    type: EnemyType.Flying,
+    state: EnemyState.Moving,
     position: {
       x: positionX,
       y: -120,
