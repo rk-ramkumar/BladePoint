@@ -1,4 +1,3 @@
-import { Vec2 } from "@/weapons/Weapon"
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision"
 import { useEffect, useRef } from "react"
 

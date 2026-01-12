@@ -1,5 +1,5 @@
 import { NormalizedLandmark } from "@mediapipe/tasks-vision";
-import { Vec2 } from "@/weapons/Weapon";
+import { Vec2 } from "@/utils/math";
 
 const PINCH_THRESHOLD = 0.04;
 

@@ -1,7 +1,7 @@
 import { spawnSlash } from "@/utils/drawSlices";
-import { Vec2, BaseWeapon } from "./Weapon";
+import { BaseWeapon } from "./Weapon";
 import { GestureIntent } from "@/utils/gestures";
-import { lerpAngle } from "@/utils/math";
+import { lerpAngle, Vec2 } from "@/utils/math";
 
 function bladeTip(grip: Vec2, angleDeg: number, bladeLength: number): Vec2 {
   const rad = (angleDeg * Math.PI) / 180;

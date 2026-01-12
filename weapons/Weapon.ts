@@ -1,7 +1,6 @@
 import { GestureIntent } from "@/utils/gestures";
 import { WeaponSkin } from "./WeaponSkin";
-
-export type Vec2 = { x: number; y: number };
+import { Vec2 } from "@/utils/math";
 
 export interface Weapon {
   name: string;

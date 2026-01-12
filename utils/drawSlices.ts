@@ -1,4 +1,4 @@
-import { Vec2 } from "@/weapons/Weapon";
+import { Vec2 } from "@/utils/math";
 import { WeaponSkin } from "@/weapons/WeaponSkin";
 
 export type Slash = {

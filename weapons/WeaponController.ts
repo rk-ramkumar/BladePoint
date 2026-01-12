@@ -1,5 +1,5 @@
 import { GestureIntent } from "@/utils/gestures";
-import { Weapon, Vec2 } from "./Weapon";
+import { Weapon } from "./Weapon";
 
 export class WeaponController {
   private weapon: Weapon | null = null;

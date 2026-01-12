@@ -1,4 +1,4 @@
-import { Vec2 } from "@/weapons/Weapon";
+import { Vec2 } from "@/utils/math";
 
 export function lineIntersectsCircle(
   p1: Vec2,
