@@ -22,6 +22,7 @@ export default function EnemyRenderer({ enemy }: { enemy: Enemy }) {
 
     return (
         <div
+            // className="border-2"
             style={{
                 position: "fixed",
                 left: enemy.position.x,
@@ -45,7 +46,7 @@ export default function EnemyRenderer({ enemy }: { enemy: Enemy }) {
                 }
                 transition={{ duration: 0.4 }}
                 style={{
-                    width: 140,
+                    width: `${enemy.width}px`,
                     transform: facingRight ? "scaleX(1)" : "scaleX(-1)"
                 }}
             />

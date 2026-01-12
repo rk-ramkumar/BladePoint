@@ -21,4 +21,5 @@ export type Enemy = {
   hp: number;
   sprite: string;
   damage: number;
+  width: number;
 };

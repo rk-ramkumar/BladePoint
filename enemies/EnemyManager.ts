@@ -98,7 +98,7 @@ export function applyDamage(
           shape.start,
           shape.end,
           enemy.position,
-          shape.radius
+          enemy.width / 2
         );
         break;
 

@@ -27,11 +27,17 @@ export class Katana extends BaseWeapon {
       90 * multiplier,
       this.handedness === "left"
     );
-    const angle = 180 * multiplier;
+    const angle = 90 * multiplier;
+    const offset = 50;
     const angleRad = (angle * Math.PI) / 180;
     const endX = this.position.x + this.swordLength * Math.cos(angleRad);
     const endY = this.position.y + this.swordLength * Math.sin(angleRad);
-    const end = { x: endX, y: endY };
+    const end = { x: endX - offset * 2 * multiplier, y: endY };
+
+    const start = {
+      x: this.position.x - offset * multiplier,
+      y: this.position.y - this.skin.pivot.y * multiplier,
+    };
 
     gameEvents.emit({
       type: "DAMAGE",
@@ -39,7 +45,7 @@ export class Katana extends BaseWeapon {
       damage: this.damage,
       shape: {
         type: "LINE",
-        start: this.position,
+        start: start,
         end: end,
         radius: 35,
       },
