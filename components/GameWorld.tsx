@@ -1,20 +1,22 @@
 'use client'
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BackgroundLayer from "./BackGroundLayer";
-
-type Enemy = {
-    id: string;
-    x: number;
-    y: number;
-    speed: number
-};
-const ENEMYSPAWNINTERVEL = 1200;
+import { spawnEnemy } from "@/enemies/EnemyManager";
+import { Enemy } from "@/enemies/EnemyTypes";
+import EnemyRenderer from "./EnemyRenderer";
 
 export default function GameWorld() {
     const [enemies, setEnemies] = useState<Enemy[]>([]);
     const [stage, setStage] = useState(0);
+    const screenRef = useRef<{ w: number; h: number } | null>(null);
+
 
     useEffect(() => {
+        screenRef.current = {
+            w: window.innerWidth,
+            h: window.innerHeight
+        };
+
         const id = setInterval(() => {
             setStage(s => s + 1);
         }, 20000);
@@ -23,33 +25,38 @@ export default function GameWorld() {
     }, []);
 
     useEffect(() => {
+        const spawnInterval = Math.max(1400 - stage * 150, 400);
+
         const id = setInterval(() => {
-            setEnemies(prev => [
-                ...prev,
-                {
-                    id: crypto.randomUUID(),
-                    x: Math.random() * window.innerWidth,
-                    y: 0,
-                    speed: 2 + Math.random() * 3
-                }
-            ]);
-        }, ENEMYSPAWNINTERVEL);
+            const screen = screenRef.current;
+            if (!screen) return;
+            setEnemies(e => [...e, spawnEnemy(stage, screen)]);
+        }, spawnInterval);
 
         return () => clearInterval(id);
-    }, []);
+    }, [stage]);
+
 
     useEffect(() => {
         let animationId: number;
 
         const update = () => {
+            const screen = screenRef.current;
+            if (!screen) return;
             setEnemies(prev =>
                 prev
-                    .map(enemy => ({ ...enemy, y: enemy.y + enemy.speed }))
-                    .filter(enemy => enemy.y < window.innerHeight - 50)
-            )
-
+                    .map(e => ({
+                        ...e,
+                        position: {
+                            x: e.position.x + e.velocity.x * 0.016,
+                            y: e.position.y + e.velocity.y * 0.016
+                        }
+                    }))
+                    .filter(e => e.position.y < screen.h + 200)
+            );
             animationId = requestAnimationFrame(update);
         }
+
         animationId = requestAnimationFrame(update);
 
         return () => cancelAnimationFrame(animationId);
@@ -58,12 +65,8 @@ export default function GameWorld() {
     return (
         <>
             <BackgroundLayer {...{ stage }} />
-            {enemies.map(f => (
-                <div
-                    key={f.id}
-                    className="absolute w-12 h-12 bg-orange-500 rounded-full"
-                    style={{ left: f.x, top: f.y }}
-                />
+            {enemies.map(e => (
+                <EnemyRenderer key={e.id} enemy={e} />
             ))}
         </>
     );
