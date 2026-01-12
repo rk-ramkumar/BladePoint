@@ -53,7 +53,13 @@ export function updateEnemies(
       next.push({ ...enemy, deathTimer: remaining });
       continue;
     }
+
     if (enemy.state !== EnemyState.Moving) continue;
+
+    if (enemy.hitFlashTimer) {
+      const t = enemy.hitFlashTimer - dt;
+      enemy.hitFlashTimer = t <= 0 ? undefined : t;
+    }
 
     const pos = moveTowards(enemy.position, relicPos, enemy.speed, dt);
 
@@ -96,6 +102,39 @@ function getDistance(from: Vec2, to: Vec2) {
   return Math.hypot(from.x - to.x, from.y - to.y);
 }
 
+function resolveHit(shape: DamageShape, enemy: Enemy): boolean {
+  let hit = false;
+
+  switch (shape.type) {
+    case "LINE":
+      hit = lineCircleHit(
+        shape.start,
+        shape.end,
+        enemy.position,
+        enemy.width / 2
+      );
+      break;
+
+    case "POINT":
+      hit =
+        getDistance(
+          { x: enemy.position.x, y: enemy.position.y },
+          { x: shape.position.x, y: shape.position.y }
+        ) < shape.radius;
+      break;
+
+    case "CIRCLE":
+      hit =
+        getDistance(
+          { x: enemy.position.x, y: enemy.position.y },
+          { x: shape.center.x, y: shape.center.y }
+        ) < shape.radius;
+      break;
+  }
+
+  return hit;
+}
+
 export function applyDamage(
   enemies: Enemy[],
   shape: DamageShape,
@@ -104,42 +143,24 @@ export function applyDamage(
   return enemies.map((enemy) => {
     if (enemy.state !== EnemyState.Moving) return enemy;
 
-    let hit = false;
-
-    switch (shape.type) {
-      case "LINE":
-        hit = lineCircleHit(
-          shape.start,
-          shape.end,
-          enemy.position,
-          enemy.width / 2
-        );
-        break;
-
-      case "POINT":
-        hit =
-          getDistance(
-            { x: enemy.position.x, y: enemy.position.y },
-            { x: shape.position.x, y: shape.position.y }
-          ) < shape.radius;
-        break;
-
-      case "CIRCLE":
-        hit =
-          getDistance(
-            { x: enemy.position.x, y: enemy.position.y },
-            { x: shape.center.x, y: shape.center.y }
-          ) < shape.radius;
-        break;
-    }
+    const hit = resolveHit(shape, enemy);
 
     if (!hit) return enemy;
-    const next = Math.max(enemy.hp - damage, 0);
+
+    const nextHp = enemy.hp - damage;
+
+    if (nextHp <= 0) {
+      return {
+        ...enemy,
+        hp: 0,
+        state: EnemyState.Dying,
+      };
+    }
 
     return {
       ...enemy,
-      hp: next,
-      state: next === 0 ? EnemyState.Dying : enemy.state,
+      hp: nextHp,
+      hitFlashTimer: 0.12,
     };
   });
 }

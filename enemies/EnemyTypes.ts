@@ -23,4 +23,5 @@ export type Enemy = {
   damage: number;
   width: number;
   deathTimer?: number;
+  hitFlashTimer?: number;
 };

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 
 export default function EnemyRenderer({ enemy }: { enemy: Enemy }) {
     const facingRight = enemy.velocity.x > 0;
+    const isHit = !!enemy.hitFlashTimer;
 
     return (
         <div
@@ -20,17 +21,19 @@ export default function EnemyRenderer({ enemy }: { enemy: Enemy }) {
             <motion.img
                 src={enemy.sprite}
                 initial={false}
-                animate={
-                    enemy.state === EnemyState.Dying
-                        ? {
-                            opacity: 0,
-                            scale: 1.2,
-                            filter: "blur(8px)",
-                            transform: facingRight ? "scaleX(1)" : "scaleX(-1)"
-                        }
-                        : { opacity: 1 }
-                }
-                transition={{ duration: enemy.deathTimer ?? 0.4 }}
+                animate={{
+                    opacity: enemy.state === EnemyState.Dying ? 0 : 1,
+                    scale: enemy.state === EnemyState.Dying ? 1.2 : 1,
+                    filter: isHit
+                        ? "brightness(2) contrast(1.4)"
+                        : enemy.state === EnemyState.Dying
+                            ? "blur(8px)"
+                            : "brightness(1)",
+                    transform: facingRight ? "scaleX(1)" : "scaleX(-1)",
+                }}
+                transition={{
+                    duration: isHit ? 0.05 : enemy.deathTimer ?? 0.4
+                }}
                 style={{
                     width: `${enemy.width}px`,
                     transform: facingRight ? "scaleX(1)" : "scaleX(-1)"
@@ -51,7 +54,7 @@ export default function EnemyRenderer({ enemy }: { enemy: Enemy }) {
                     pointerEvents: "none"
                 }}
             >
-                {enemy.hp}
+                {enemy.hp || ""}
             </div>
         </div>
     );
