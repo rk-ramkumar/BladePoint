@@ -7,9 +7,11 @@ import EnemyRenderer from "./EnemyRenderer";
 import Relic from "./Relic";
 import { gameEvents } from "@/game/GameEvents";
 import FlashOverlay from "./FlashOverlay";
+import DebugHitCanvas from "./DebugHitCanvas";
 
 
 const SPAWN_INTERVAL = 5 * 1000
+const DEBUG_MODE = false;
 
 export default function GameWorld() {
     const [enemies, setEnemies] = useState<Enemy[]>([]);
@@ -17,6 +19,9 @@ export default function GameWorld() {
     const screenRef = useRef<{ w: number; h: number } | null>(null);
     const [gameOver, setGameOver] = useState(false);
     const [flashTick, setFlashTick] = useState(0);
+    const debugSlicesRef = useRef<
+        { start: { x: number; y: number }; end: { x: number; y: number }, life: number }[]
+    >([]);
 
     // Events Controller
     useEffect(() => {
@@ -24,11 +29,18 @@ export default function GameWorld() {
             setGameOver(true);
         })
         const enemyKilled = gameEvents.on("ENEMY_KILLED", e => {
-            console.log('s')
             setFlashTick(t => t + 1);
             setEnemies(prev => prev.filter(en => en.id !== e.enemyId));
         });
         const damage = gameEvents.on("DAMAGE", e => {
+            if (DEBUG_MODE && e.shape.type === "LINE") {
+                debugSlicesRef.current.push({
+                    start: e.shape.start,
+                    end: e.shape.end,
+                    life: 20
+                });
+            }
+
             setEnemies(prev =>
                 applyDamage(prev, e.shape, e.damage)
             );
@@ -113,6 +125,9 @@ export default function GameWorld() {
 
             {/* Global hit feedback */}
             <FlashOverlay trigger={flashTick} />
+            {/* slice Line Renderer (debug mode) */}
+            <DebugHitCanvas slices={debugSlicesRef.current} />
+
         </>
     );
 }
