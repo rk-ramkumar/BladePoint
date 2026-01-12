@@ -39,6 +39,20 @@ export function updateEnemies(
   const next: Enemy[] = [];
 
   for (const enemy of enemies) {
+    if (enemy.state === EnemyState.Dying) {
+      const remaining = (enemy.deathTimer ?? 0) - dt;
+
+      if (remaining <= 0) {
+        eventsToEmit.push({
+          type: "ENEMY_KILLED",
+          enemyId: enemy.id,
+        });
+        continue;
+      }
+
+      next.push({ ...enemy, deathTimer: remaining });
+      continue;
+    }
     if (enemy.state !== EnemyState.Moving) continue;
 
     const pos = moveTowards(enemy.position, relicPos, enemy.speed, dt);
@@ -120,12 +134,12 @@ export function applyDamage(
     }
 
     if (!hit) return enemy;
-    const next = enemy.hp - damage;
+    const next = Math.max(enemy.hp - damage, 0);
 
     return {
       ...enemy,
       hp: next,
-      state: next <= 0 ? EnemyState.Dying : enemy.state,
+      state: next === 0 ? EnemyState.Dying : enemy.state,
     };
   });
 }

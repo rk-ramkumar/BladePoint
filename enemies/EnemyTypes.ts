@@ -22,4 +22,5 @@ export type Enemy = {
   sprite: string;
   damage: number;
   width: number;
+  deathTimer?: number;
 };

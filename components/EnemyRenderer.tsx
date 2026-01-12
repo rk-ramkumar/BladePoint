@@ -1,24 +1,9 @@
 'use client';
 import { Enemy, EnemyState } from "@/enemies/EnemyTypes";
-import { gameEvents } from "@/game/GameEvents";
-import { useEffect } from "react";
 import { motion } from "framer-motion";
 
 export default function EnemyRenderer({ enemy }: { enemy: Enemy }) {
     const facingRight = enemy.velocity.x > 0;
-
-    useEffect(() => {
-        if (enemy.state === EnemyState.Dying) {
-            const id = setTimeout(() => {
-                gameEvents.emit({
-                    type: "ENEMY_KILLED",
-                    enemyId: enemy.id
-                });
-            }, 500);
-
-            return () => clearTimeout(id);
-        }
-    }, [enemy.state, enemy.id]);
 
     return (
         <div
@@ -40,11 +25,12 @@ export default function EnemyRenderer({ enemy }: { enemy: Enemy }) {
                         ? {
                             opacity: 0,
                             scale: 1.2,
-                            filter: "blur(8px)"
+                            filter: "blur(8px)",
+                            transform: facingRight ? "scaleX(1)" : "scaleX(-1)"
                         }
                         : { opacity: 1 }
                 }
-                transition={{ duration: 0.4 }}
+                transition={{ duration: enemy.deathTimer ?? 0.4 }}
                 style={{
                     width: `${enemy.width}px`,
                     transform: facingRight ? "scaleX(1)" : "scaleX(-1)"

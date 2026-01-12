@@ -18,7 +18,6 @@ export default function GameWorld() {
     const [stage, setStage] = useState(0);
     const screenRef = useRef<{ w: number; h: number } | null>(null);
     const [gameOver, setGameOver] = useState(false);
-    const [flashTick, setFlashTick] = useState(0);
     const debugSlicesRef = useRef<
         { start: { x: number; y: number }; end: { x: number; y: number }, life: number }[]
     >([]);
@@ -29,7 +28,6 @@ export default function GameWorld() {
             setGameOver(true);
         })
         const enemyKilled = gameEvents.on("ENEMY_KILLED", e => {
-            setFlashTick(t => t + 1);
             setEnemies(prev => prev.filter(en => en.id !== e.enemyId));
         });
         const damage = gameEvents.on("DAMAGE", e => {
@@ -123,8 +121,6 @@ export default function GameWorld() {
                 <EnemyRenderer key={e.id} enemy={e} />
             ))}
 
-            {/* Global hit feedback */}
-            <FlashOverlay trigger={flashTick} />
             {/* slice Line Renderer (debug mode) */}
             <DebugHitCanvas slices={debugSlicesRef.current} />
 
