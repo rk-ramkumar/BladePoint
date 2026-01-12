@@ -13,6 +13,8 @@ export type EnemyUpdateResult = {
 };
 
 const RELIC_RADIUS = 60;
+const PROXIMITY_RADIUS = 220;
+
 let eventsToEmit: any[] = [];
 
 export function spawnEnemy(
@@ -41,6 +43,13 @@ export function updateEnemies(
 
     const dx = pos.x - relicPos.x;
     const dy = pos.y - relicPos.y;
+
+    if (Math.hypot(dx, dy) < PROXIMITY_RADIUS) {
+      eventsToEmit.push({
+        type: "ENEMY_NEAR_RELIC",
+        intensity: 1 - Math.hypot(dx, dy) / PROXIMITY_RADIUS,
+      });
+    }
 
     if (Math.hypot(dx, dy) < RELIC_RADIUS) {
       eventsToEmit.push({
