@@ -1,11 +1,12 @@
 'use client'
 import { useEffect, useRef, useState } from "react";
 import BackgroundLayer from "./BackGroundLayer";
-import { emitQueueEvents, spawnEnemy, updateEnemies } from "@/enemies/EnemyManager";
+import { applyDamage, emitQueueEvents, spawnEnemy, updateEnemies } from "@/enemies/EnemyManager";
 import { Enemy } from "@/enemies/EnemyTypes";
 import EnemyRenderer from "./EnemyRenderer";
 import Relic from "./Relic";
 import { gameEvents } from "@/game/GameEvents";
+import FlashOverlay from "./FlashOverlay";
 
 
 const SPAWN_INTERVAL = 5 * 1000
@@ -15,13 +16,34 @@ export default function GameWorld() {
     const [stage, setStage] = useState(0);
     const screenRef = useRef<{ w: number; h: number } | null>(null);
     const [gameOver, setGameOver] = useState(false);
+    const [flashTick, setFlashTick] = useState(0);
+
+    // Events Controller
+    useEffect(() => {
+        const gameOver = gameEvents.on("GAME_OVER", e => {
+            setGameOver(true);
+        })
+        const enemyKilled = gameEvents.on("ENEMY_KILLED", e => {
+            console.log('s')
+            setFlashTick(t => t + 1);
+            setEnemies(prev => prev.filter(en => en.id !== e.enemyId));
+        });
+        const damage = gameEvents.on("DAMAGE", e => {
+            setEnemies(prev =>
+                applyDamage(prev, e.shape, e.damage)
+            );
+        });
+
+        return () => {
+            gameOver();
+            enemyKilled();
+            damage()
+        }
+
+    }, [])
 
     // Stage progression
     useEffect(() => {
-        const off = gameEvents.on("GAME_OVER", e => {
-            setGameOver(true);
-        })
-
         screenRef.current = {
             w: window.innerWidth,
             h: window.innerHeight
@@ -31,10 +53,7 @@ export default function GameWorld() {
             setStage(s => s + 1);
         }, 20000);
 
-        return () => {
-            off();
-            clearInterval(id);
-        }
+        return () => clearInterval(id);
     }, []);
 
     // Controlled spawning
@@ -91,6 +110,9 @@ export default function GameWorld() {
             {enemies.map(e => (
                 <EnemyRenderer key={e.id} enemy={e} />
             ))}
+
+            {/* Global hit feedback */}
+            <FlashOverlay trigger={flashTick} />
         </>
     );
 }

@@ -8,6 +8,7 @@ export enum EnemyState {
   Moving,
   Attacking,
   Dead,
+  Dying,
 }
 
 export type Enemy = {

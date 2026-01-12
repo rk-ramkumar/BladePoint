@@ -1,18 +1,13 @@
 import { spawnSlash } from "@/utils/drawSlices";
 import { BaseWeapon } from "./Weapon";
 import { GestureIntent } from "@/utils/gestures";
-import { lerpAngle, Vec2 } from "@/utils/math";
+import { lerpAngle } from "@/utils/math";
+import { gameEvents } from "@/game/GameEvents";
 
-function bladeTip(grip: Vec2, angleDeg: number, bladeLength: number): Vec2 {
-  const rad = (angleDeg * Math.PI) / 180;
-
-  return {
-    x: grip.x + Math.cos(rad) * bladeLength,
-    y: grip.y + Math.sin(rad) * bladeLength,
-  };
-}
 export class Katana extends BaseWeapon {
   name = "Katana";
+  damage = 2;
+  private swordLength = 100;
   private _intent: GestureIntent | null = null;
   private rotationRef: number = 0;
   private deltaTime: number = 0;
@@ -32,6 +27,23 @@ export class Katana extends BaseWeapon {
       90 * multiplier,
       this.handedness === "left"
     );
+    const angle = 180 * multiplier;
+    const angleRad = (angle * Math.PI) / 180;
+    const endX = this.position.x + this.swordLength * Math.cos(angleRad);
+    const endY = this.position.y + this.swordLength * Math.sin(angleRad);
+    const end = { x: endX, y: endY };
+
+    gameEvents.emit({
+      type: "DAMAGE",
+      source: "PLAYER",
+      damage: this.damage,
+      shape: {
+        type: "LINE",
+        start: this.position,
+        end: end,
+        radius: 35,
+      },
+    });
   }
 
   onMove(intent: GestureIntent) {

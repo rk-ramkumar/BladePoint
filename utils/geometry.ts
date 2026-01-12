@@ -25,3 +25,23 @@ export function lineIntersectsCircle(
 
   return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1);
 }
+
+export function lineCircleHit(a: Vec2, b: Vec2, center: Vec2, radius: number) {
+  const ab = { x: b.x - a.x, y: b.y - a.y };
+  const ac = { x: center.x - a.x, y: center.y - a.y };
+
+  const t = Math.max(
+    0,
+    Math.min(1, (ac.x * ab.x + ac.y * ab.y) / (ab.x * ab.x + ab.y * ab.y))
+  );
+
+  const closest = {
+    x: a.x + ab.x * t,
+    y: a.y + ab.y * t,
+  };
+
+  const dx = closest.x - center.x;
+  const dy = closest.y - center.y;
+
+  return dx * dx + dy * dy <= radius * radius;
+}

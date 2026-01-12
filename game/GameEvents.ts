@@ -1,4 +1,12 @@
+import { Vec2 } from "@/utils/math";
+
+export type DamageShape =
+  | { type: "LINE"; start: Vec2; end: Vec2; radius: number }
+  | { type: "POINT"; position: Vec2; radius: number }
+  | { type: "CIRCLE"; center: Vec2; radius: number };
+
 export type GameEvent =
+  | { type: "DAMAGE"; shape: DamageShape; damage: number; source: "PLAYER" }
   | { type: "ENEMY_ATTACK"; damage: number; sourceId: string }
   | { type: "PLAYER_HIT"; damage: number }
   | { type: "ENEMY_KILLED"; enemyId: string }
@@ -26,7 +34,6 @@ class GameEventBus {
   }
 
   emit(event: GameEvent) {
-    console.log("Emiting", event);
     this.listeners[event.type]?.forEach((l) => l(event as any));
   }
 }

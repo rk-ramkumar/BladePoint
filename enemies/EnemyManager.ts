@@ -1,7 +1,8 @@
 import { Enemy, EnemyState, EnemyType } from "./EnemyTypes";
 import { createEnemy } from "./EnemyFactory";
-import { gameEvents } from "@/game/GameEvents";
-import { moveTowards } from "@/utils/math";
+import { DamageShape, gameEvents } from "@/game/GameEvents";
+import { moveTowards, Vec2 } from "@/utils/math";
+import { lineCircleHit } from "@/utils/geometry";
 
 export type EnemyUpdateResult = {
   enemies: Enemy[];
@@ -14,6 +15,7 @@ export type EnemyUpdateResult = {
 
 const RELIC_RADIUS = 60;
 const PROXIMITY_RADIUS = 220;
+const ENEMY_RADIUS = 40;
 
 let eventsToEmit: any[] = [];
 
@@ -43,15 +45,16 @@ export function updateEnemies(
 
     const dx = pos.x - relicPos.x;
     const dy = pos.y - relicPos.y;
+    const distance = Math.hypot(dx, dy);
 
-    if (Math.hypot(dx, dy) < PROXIMITY_RADIUS) {
+    if (distance < PROXIMITY_RADIUS) {
       eventsToEmit.push({
         type: "ENEMY_NEAR_RELIC",
-        intensity: 1 - Math.hypot(dx, dy) / PROXIMITY_RADIUS,
+        intensity: 1 - distance / PROXIMITY_RADIUS,
       });
     }
 
-    if (Math.hypot(dx, dy) < RELIC_RADIUS) {
+    if (distance < RELIC_RADIUS) {
       eventsToEmit.push({
         type: "ENEMY_ATTACK",
         damage: enemy.damage,
@@ -72,4 +75,57 @@ export function emitQueueEvents() {
     eventsToEmit.map((e) => gameEvents.emit(e));
     eventsToEmit = [];
   }
+}
+
+//Helper
+function getDistance(from: Vec2, to: Vec2) {
+  return Math.hypot(from.x - to.x, from.y - to.y);
+}
+
+export function applyDamage(
+  enemies: Enemy[],
+  shape: DamageShape,
+  damage: number
+): Enemy[] {
+  return enemies.map((enemy) => {
+    if (enemy.state !== EnemyState.Moving) return enemy;
+
+    let hit = false;
+
+    switch (shape.type) {
+      case "LINE":
+        hit = lineCircleHit(
+          shape.start,
+          shape.end,
+          enemy.position,
+          shape.radius
+        );
+        break;
+
+      case "POINT":
+        hit =
+          getDistance(
+            { x: enemy.position.x, y: enemy.position.y },
+            { x: shape.position.x, y: shape.position.y }
+          ) < shape.radius;
+        break;
+
+      case "CIRCLE":
+        hit =
+          getDistance(
+            { x: enemy.position.x, y: enemy.position.y },
+            { x: shape.center.x, y: shape.center.y }
+          ) < shape.radius;
+        break;
+    }
+
+    if (!hit) return enemy;
+    const next = enemy.hp - damage;
+
+    return {
+      ...enemy,
+      hp: next,
+      state: next <= 0 ? EnemyState.Dying : enemy.state,
+    };
+  });
 }

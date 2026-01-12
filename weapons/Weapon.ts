@@ -7,6 +7,7 @@ export interface Weapon {
   skin: WeaponSkin | null;
   position: Vec2;
   handedness: "left" | "right";
+  damage: number;
 
   onEquip(): void;
   onUnequip(): void;
@@ -27,6 +28,7 @@ export class BaseWeapon implements Weapon {
   skin: WeaponSkin | null = null;
   position: Vec2 = { x: 300, y: 300 };
   handedness: "left" | "right" = "right";
+  damage: number = 1;
 
   protected isAttacking = false;
   protected rotationSpeed = 0.15;
