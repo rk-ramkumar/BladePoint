@@ -11,7 +11,8 @@ export type GameEvent =
   | { type: "PLAYER_HIT"; damage: number }
   | { type: "ENEMY_KILLED"; enemyId: string }
   | { type: "GAME_OVER" }
-  | { type: "ENEMY_NEAR_RELIC"; intensity: number };
+  | { type: "ENEMY_NEAR_RELIC"; intensity: number }
+  | { type: "PLAY_SOUND"; sound: "KATANA_SWING"; volume?: number };
 
 type Listener<T extends GameEvent["type"]> = (
   event: Extract<GameEvent, { type: T }>

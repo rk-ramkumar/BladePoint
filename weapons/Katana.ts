@@ -20,6 +20,12 @@ export class Katana extends BaseWeapon {
     super.onAttackStart();
     if (!this.skin) return;
 
+    gameEvents.emit({
+      type: "PLAY_SOUND",
+      sound: "KATANA_SWING",
+      volume: 0.7,
+    });
+
     const multiplier = this.handedness === "left" ? -1 : 1;
     spawnSlash(
       this.position.x + 64 * multiplier,

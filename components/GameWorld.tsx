@@ -8,6 +8,7 @@ import Relic from "./Relic";
 import { gameEvents } from "@/game/GameEvents";
 import FlashOverlay from "./FlashOverlay";
 import DebugHitCanvas from "./DebugHitCanvas";
+import { audioManager } from "@/sound/AudioManager";
 
 
 const SPAWN_INTERVAL = 5 * 1000
@@ -24,13 +25,15 @@ export default function GameWorld() {
 
     // Events Controller
     useEffect(() => {
-        const gameOver = gameEvents.on("GAME_OVER", e => {
+        const offGameOver = gameEvents.on("GAME_OVER", e => {
             setGameOver(true);
         })
-        const enemyKilled = gameEvents.on("ENEMY_KILLED", e => {
+
+        const offEnemyKilled = gameEvents.on("ENEMY_KILLED", e => {
             setEnemies(prev => prev.filter(en => en.id !== e.enemyId));
         });
-        const damage = gameEvents.on("DAMAGE", e => {
+
+        const offDamage = gameEvents.on("DAMAGE", e => {
             if (DEBUG_MODE && e.shape.type === "LINE") {
                 debugSlicesRef.current.push({
                     start: e.shape.start,
@@ -44,16 +47,23 @@ export default function GameWorld() {
             );
         });
 
+        const offPlaySound = gameEvents.on("PLAY_SOUND", e => {
+            audioManager.play(e.sound, e.volume);
+        });
+
         return () => {
-            gameOver();
-            enemyKilled();
-            damage()
+            offGameOver();
+            offEnemyKilled();
+            offDamage()
+            offPlaySound();
         }
 
     }, [])
 
     // Stage progression
     useEffect(() => {
+        audioManager.init();
+
         screenRef.current = {
             w: window.innerWidth,
             h: window.innerHeight
