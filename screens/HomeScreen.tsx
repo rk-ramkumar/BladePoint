@@ -6,17 +6,19 @@ import { motion } from "framer-motion";
 import PlayButton from "@/components/home/PlayButton";
 import RealmPreviewCard from "@/components/home/RealmPreviewCard";
 import HomeNavBar from "@/components/home/HomeNavBar";
-import CursorHand from "@/components/home/CursorHand";
 import BackgrounSelect from "@/components/BackgrounSelect";
 import HomeHeader from "@/components/home/HomeHeader";
 import HomeSpecter from "@/components/home/HomeSpecter";
+import RenameModal from "@/components/home/RenameModal";
 
 export default function HomeScreen({ onPlay }: { onPlay: () => void }) {
   const [showRealmSelect, setShowRealmSelect] = useState(false);
+  const [onEdit, setOnEdit] = useState(false)
+
 
   return (
     <div className="fixed inset-0 bg-black text-white overflow-hidden">
-      <HomeSpecter />
+      <HomeSpecter {...{ setOnEdit }} />
 
       {/* <CursorHand /> */}
       <HomeHeader />
@@ -32,12 +34,16 @@ export default function HomeScreen({ onPlay }: { onPlay: () => void }) {
         <RealmPreviewCard onClick={() => setShowRealmSelect(true)} />
         <PlayButton onClick={onPlay} />
       </div>
-
       <HomeNavBar />
 
       {showRealmSelect && (
         <BackgrounSelect onSelect={() => setShowRealmSelect(false)} />
       )}
+
+      {onEdit && (
+        <RenameModal onClose={() => setOnEdit(false)} />
+      )}
+
     </div>
   );
 }

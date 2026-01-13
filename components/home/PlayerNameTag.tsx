@@ -9,16 +9,20 @@ export default function PlayerNameTag({ onEdit }: { onEdit: () => void }) {
         <motion.div
             animate={{
                 y: [-8, 8, -8],
-                skewY: [12]
+                skewY: [12],
+                opacity: [0.96, 1, 0.96],
+                filter: ["brightness(1)", "brightness(2)", "brightness(1)"]
             }}
             transition={{
                 duration: 8,
                 repeat: Infinity,
                 ease: "easeInOut",
             }}
-            className="relative top-72 left-78 cursor-pointer pointer-events-auto text-purple-300 text-4xl font-semibold 
-            hover:text-purple-100 skew-y-12 w-38 border-2 text-wrap overflow-hidden text-ellipsis"
+            className="cursor-pointer pointer-events-auto text-purple-300 text-3xl md:text-4xl font-semibold 
+            hover:text-purple-100 skew-y-12 px-4 py-2
+            text-wrap overflow-hidden text-ellipsis min-w-35 max-w-40 rounded-lg"
             onClick={onEdit}
+            suppressHydrationWarning
         >
             {playerName}
         </motion.div >

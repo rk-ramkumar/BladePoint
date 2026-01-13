@@ -1,9 +1,11 @@
 import { useGame } from "@/game/GameState";
 import { Settings } from "lucide-react";
 import SettingsPanel from "./SettingsPanel";
+import { useState } from "react";
 
 export function SettingsButton() {
-  const { showSettings, setPause, setShowSettings } = useGame();
+  const { setPause, } = useGame();
+  const [showSettings, setShowSettings] = useState(false)
 
   function onClose() {
     setPause(false)
