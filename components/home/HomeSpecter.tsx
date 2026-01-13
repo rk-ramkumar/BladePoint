@@ -41,7 +41,7 @@ export default function HomeSpecter() {
                     WebkitMaskRepeat: "no-repeat",
                     WebkitMaskPosition: "center",
                     WebkitMaskSize: "contain",
-                    maskImage: "url(/assets/ui/man-in-a-black-cloak.png)",
+                    maskImage: "url(/assets/ui/black-cloak-specter.png)",
                     maskRepeat: "no-repeat",
                     maskPosition: "center",
                     maskSize: "contain",
