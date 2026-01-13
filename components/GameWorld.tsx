@@ -20,12 +20,13 @@ export default function GameWorld() {
     const debugSlicesRef = useRef<
         { start: { x: number; y: number }; end: { x: number; y: number }, life: number }[]
     >([]);
-    const { pausedRef } = useGame();
+    const { pausedRef, setPause } = useGame();
 
     // Events Controller
     useEffect(() => {
         const offGameOver = gameEvents.on("GAME_OVER", e => {
             setGameOver(true);
+            setPause(true);
         })
 
         const offEnemyKilled = gameEvents.on("ENEMY_KILLED", e => {

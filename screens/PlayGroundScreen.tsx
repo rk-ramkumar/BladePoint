@@ -1,6 +1,7 @@
 'use client'
 import GameWorld from "@/components/GameWorld";
 import HandRecognizer from "@/components/HandRecognizer";
+import HomeHeader from "@/components/home/HomeHeader";
 import { PauseButton } from "@/components/PauseButton";
 import { SettingsButton } from "@/components/SettingsButton";
 import { WeaponRenderer } from "@/components/WeaponRenderer";
@@ -44,8 +45,8 @@ export default function PlayGroundScreen() {
                     {paused && <div className="text-center text-white">Resume To Play</div>}
                 </div>
 
-                <PauseButton />
-                <SettingsButton />
+                {/* <PauseButton /> */}
+                <HomeHeader />
                 <canvas
                     ref={canvasRef}
                     className="w-full pointer-events-none transform scale-x-[-1]"

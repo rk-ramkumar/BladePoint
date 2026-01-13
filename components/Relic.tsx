@@ -15,7 +15,7 @@ const CORRUPTION_THRESHOLDS = [
 
 function getCorruption(hp: number) {
     const ratio = hp / RELIC_MAX_HP;
-    return CORRUPTION_THRESHOLDS.find(t => ratio > t.min)!.stage;
+    return CORRUPTION_THRESHOLDS.find(t => ratio > t.min)!?.stage;
 }
 
 export default function Relic() {

@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useGame } from "@/game/GameState";
 
-// import HomeHeader from "@/components/home/HomeHeader";
 import PlayButton from "@/components/home/PlayButton";
 import RealmPreviewCard from "@/components/home/RealmPreviewCard";
 import HomeNavBar from "@/components/home/HomeNavBar";
