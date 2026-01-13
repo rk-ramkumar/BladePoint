@@ -1,8 +1,13 @@
 'use client';
 
 import { motion } from "framer-motion";
+import RenameModal from "./RenameModal";
+import PlayerNameTag from "./PlayerNameTag";
+import { useState } from "react";
 
 export default function HomeSpecter() {
+    const [onEdit, setOnEdit] = useState(false)
+
     return (
         <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
             <motion.div
@@ -59,6 +64,9 @@ export default function HomeSpecter() {
                         "radial-gradient(circle, transparent 40%, rgba(0,0,0,0.85) 80%)",
                 }}
             />
+            <PlayerNameTag onEdit={() => setOnEdit(true)} />
+            {onEdit && <RenameModal onClose={() => setOnEdit(false)} />}
+
         </div>
     );
 }

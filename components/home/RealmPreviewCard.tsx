@@ -20,7 +20,7 @@ export default function RealmPreviewCard({ onClick }: { onClick: () => void }) {
                 borderRadius: 12,
                 overflow: "hidden",
                 boxShadow: "0 0 40px rgba(100,200,255,0.4)",
-                border: "2px solid rgba(255,255,255,0.25)",
+                border: "2px solid rgba(255,255,255, 0.5)",
                 position: "relative"
             }}
         >

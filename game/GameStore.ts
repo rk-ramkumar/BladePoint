@@ -5,29 +5,28 @@ export type GameData = {
   playerName: string;
 };
 
-const DEFAULT_DATA: GameData = {
+export const DEFAULT_DATA: GameData = {
   souls: 0,
   masterVolume: 0.8,
   sfxVolume: 0.8,
   playerName: "Player",
 };
 
-const KEY = "HAND_RITUAL_SAVE";
+const KEY = "HAND_OF_RUIN_SAVE";
 
 class GameStore {
-  private data: GameData;
+  private data: GameData = DEFAULT_DATA;
 
-  constructor() {
-    if (typeof window === "undefined") {
-      this.data = DEFAULT_DATA;
-      return;
-    }
+  load(): GameData {
+    if (typeof window === "undefined") return DEFAULT_DATA;
 
     const raw = localStorage.getItem(KEY);
     this.data = raw ? JSON.parse(raw) : DEFAULT_DATA;
+    return this.data;
   }
 
-  private save() {
+  save(data: GameData) {
+    this.data = data;
     localStorage.setItem(KEY, JSON.stringify(this.data));
   }
 
@@ -37,12 +36,10 @@ class GameStore {
 
   set<K extends keyof GameData>(key: K, value: GameData[K]) {
     this.data[key] = value;
-    this.save();
+    this.save(this.data);
   }
-
-  addSouls(amount: number) {
-    this.data.souls += amount;
-    this.save();
+  getData() {
+    return this.data;
   }
 }
 

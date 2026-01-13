@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { gameStore, DEFAULT_DATA } from "./GameStore";
 import { Background, BACKGROUNDS } from "./backgrounds";
 
 type GameContextType = {
@@ -8,11 +9,14 @@ type GameContextType = {
   pausedRef: React.MutableRefObject<boolean>;
   setPause: (v: boolean) => void;
 
-  showSettings: boolean;
-  setShowSettings: (v: boolean) => void;
-
   background: Background;
   setBackground: (bg: Background) => void;
+
+  souls: number;
+  addSouls: (n: number) => void;
+
+  playerName: string;
+  setPlayerName: (name: string) => void;
 };
 
 const GameContext = createContext<GameContextType | null>(null);
@@ -20,17 +24,46 @@ const GameContext = createContext<GameContextType | null>(null);
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(paused);
-
-  const [showSettings, setShowSettings] = useState(false);
-
   const [background, setBackground] = useState<Background>(
     BACKGROUNDS.find(b => !b.locked)!
   );
+  const [souls, setSouls] = useState(DEFAULT_DATA.souls);
+  const [playerName, setPlayerNameState] = useState(DEFAULT_DATA.playerName);
 
-  function setPause(val: boolean) {
-    setPaused(val);
-    pausedRef.current = val;
+  const [hasLoadedFromStorage, setHasLoadedFromStorage] = useState(false);
+
+  function setPause(v: boolean) {
+    setPaused(v);
+    pausedRef.current = v;
   }
+
+  function addSouls(n: number) {
+    setSouls(s => s + n);
+  }
+
+  function setPlayerName(name: string) {
+    setPlayerNameState(name);
+  }
+
+  useEffect(() => {
+    const saved = gameStore.load();
+    if (saved) {
+      setSouls(saved.souls);
+      setPlayerNameState(saved.playerName);
+    }
+    setHasLoadedFromStorage(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasLoadedFromStorage) return;
+
+    gameStore.save({
+      ...gameStore.getData(),
+      souls,
+
+      playerName,
+    });
+  }, [souls, playerName, hasLoadedFromStorage]);
 
   return (
     <GameContext.Provider
@@ -38,10 +71,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         paused,
         pausedRef,
         setPause,
-        showSettings,
-        setShowSettings,
         background,
-        setBackground
+        setBackground,
+        souls,
+        addSouls,
+        playerName,
+        setPlayerName,
       }}
     >
       {children}
@@ -49,8 +84,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const useGame = () => {
+export function useGame() {
   const ctx = useContext(GameContext);
   if (!ctx) throw new Error("useGame must be used inside GameProvider");
   return ctx;
-};
+}
