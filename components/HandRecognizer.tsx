@@ -1,9 +1,9 @@
+import { useGame } from "@/game/GameState"
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision"
 import { useEffect, useRef } from "react"
 
 type Props = {
     setHandResults: (res: HandLandmarkerResult) => void
-    pause: boolean
     canvasRef: any,
 }
 const HAND_CONNECTIONS: Array<[number, number]> = [
@@ -28,12 +28,12 @@ const HAND_CONNECTIONS: Array<[number, number]> = [
 const DETECT_FPS = 24;
 const DETECT_INTERVAL = 1000 / DETECT_FPS;
 
-const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
+const HandRecognizer = ({ setHandResults, canvasRef }: Props) => {
     const videoRef = useRef<HTMLVideoElement>(null)
     const streamRef = useRef<MediaStream | null>(null);
     const rafRef = useRef<number | null>(null);
-    const pauseRef = useRef(pause);
     const lastDetectTimeRef = useRef<number>(0);
+    const { paused } = useGame()
 
     useEffect(() => {
         initialization()
@@ -46,13 +46,12 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
     }, [])
 
     useEffect(() => {
-        pauseRef.current = pause;
-        if (pause) {
+        if (paused) {
             stopCamera();
         } else {
             startCamera();
         }
-    }, [pause])
+    }, [paused])
 
     const initialization = async () => {
         if (!videoRef.current) return;
@@ -69,7 +68,7 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
 
     function startDetection(handLandmarker: HandLandmarker, video: HTMLVideoElement) {
         const loop = (now: number) => {
-            if (!pauseRef.current
+            if (!paused
                 && video.readyState >= 2
                 && now - lastDetectTimeRef.current >= DETECT_INTERVAL
             ) {
@@ -161,7 +160,7 @@ const HandRecognizer = ({ setHandResults, pause, canvasRef }: Props) => {
 
     return <video
         ref={videoRef}
-        className={`relative rounded-md overflow-hidden border border-white/20 shadow-[0_0_20px_rgba(0,255,0,0.3)] transform scale-x-[-1] ${pause ? "hidden" : "block"}`}
+        className={`relative rounded-md overflow-hidden border border-white/20 shadow-[0_0_20px_rgba(0,255,0,0.3)] transform scale-x-[-1] ${paused ? "hidden" : "block"}`}
         playsInline
         muted
     />

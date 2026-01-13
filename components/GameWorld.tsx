@@ -8,6 +8,7 @@ import Relic from "./Relic";
 import { gameEvents } from "@/game/GameEvents";
 import DebugHitCanvas from "./DebugHitCanvas";
 import { audioManager } from "@/sound/AudioManager";
+import { useGame } from "@/game/GameState";
 
 
 const SPAWN_INTERVAL = 5 * 1000
@@ -21,6 +22,7 @@ export default function GameWorld() {
     const debugSlicesRef = useRef<
         { start: { x: number; y: number }; end: { x: number; y: number }, life: number }[]
     >([]);
+    const { pausedRef } = useGame();
 
     // Events Controller
     useEffect(() => {
@@ -64,6 +66,7 @@ export default function GameWorld() {
         };
 
         const id = setInterval(() => {
+            if (pausedRef.current) return;
             setStage(s => s + 1);
         }, 20000);
 
@@ -78,6 +81,7 @@ export default function GameWorld() {
         const spawnInterval = Math.max(SPAWN_INTERVAL - stage * 150, 500);
 
         const id = setInterval(() => {
+            if (pausedRef.current) return;
             setEnemies(e => [...e, spawnEnemy(stage, screen)]);
         }, spawnInterval);
 
@@ -95,11 +99,13 @@ export default function GameWorld() {
             const dt = (now - last) / 1000;
             last = now;
 
-            const screen = screenRef.current!;
-            const relicPos = { x: screen.w / 2, y: screen.h / 2 };
+            if (!pausedRef.current) {
+                const screen = screenRef.current!;
+                const relicPos = { x: screen.w / 2, y: screen.h / 2 };
 
-            setEnemies(prev => updateEnemies(prev, dt, relicPos));
-            emitQueueEvents();
+                setEnemies(prev => updateEnemies(prev, dt, relicPos));
+                emitQueueEvents();
+            };
 
             raf = requestAnimationFrame(loop);
         }

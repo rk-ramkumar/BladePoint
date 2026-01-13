@@ -57,6 +57,10 @@ class AudioManager {
   setSfx(v: number) {
     this.sfxVolume = v;
   }
+
+  getVolume() {
+    return { sfxVolume: this.sfxVolume, masterVolume: this.masterVolume };
+  }
 }
 
 export const audioManager = new AudioManager();
