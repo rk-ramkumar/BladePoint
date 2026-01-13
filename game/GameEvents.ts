@@ -5,11 +5,15 @@ export type DamageShape =
   | { type: "POINT"; position: Vec2; radius: number }
   | { type: "CIRCLE"; center: Vec2; radius: number };
 
+export type CollectibleKind = "SOUL";
+
 export type GameEvent =
   | { type: "DAMAGE"; shape: DamageShape; damage: number; source: "PLAYER" }
   | { type: "ENEMY_ATTACK"; damage: number; sourceId: string }
-  | { type: "PLAYER_HIT"; damage: number }
+  | { type: "PLAYER_HIT"; damage: number; hp: number }
   | { type: "ENEMY_KILLED"; enemyId: string }
+  | { type: "SPAWN_COLLECTIBLE"; kind: CollectibleKind; value: any }
+  | { type: "COLLECTIBLE_COLLECTED"; kind: CollectibleKind; value: any }
   | { type: "GAME_OVER" }
   | { type: "ENEMY_NEAR_RELIC"; intensity: number }
   | { type: "PLAY_SOUND"; sound: "KATANA_SWING"; volume?: number };

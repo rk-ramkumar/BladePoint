@@ -7,6 +7,8 @@ import { gameEvents } from "@/game/GameEvents";
 import DebugHitCanvas from "./DebugHitCanvas";
 import { audioManager } from "@/sound/AudioManager";
 import { useGame } from "@/game/GameState";
+import { applyCollectibleHit, Collectible, emitQueuedCollectibleEvents, spawnCollectibles, updateCollectibles } from "@/game/CollectibleManager";
+import SoulPickup from "./SoulPickup";
 
 
 const SPAWN_INTERVAL = 5 * 1000
@@ -20,7 +22,8 @@ export default function GameWorld() {
     const debugSlicesRef = useRef<
         { start: { x: number; y: number }; end: { x: number; y: number }, life: number }[]
     >([]);
-    const { pausedRef, setPause } = useGame();
+    const { pausedRef, setPause, addSouls } = useGame();
+    const [collectibles, setCollectibles] = useState<Collectible[]>([]);
 
     // Events Controller
     useEffect(() => {
@@ -42,15 +45,32 @@ export default function GameWorld() {
                 });
             }
 
+            setCollectibles(prev => applyCollectibleHit(prev, e.shape).remaining)
+
             setEnemies(prev =>
                 applyDamage(prev, e.shape, e.damage)
             );
+        });
+
+        const offCollectibleSpawn = gameEvents.on("SPAWN_COLLECTIBLE", e => {
+            setCollectibles(c => [
+                ...c,
+                ...spawnCollectibles(e.kind, e.value)
+            ]);
+        });
+
+        const offCollectible = gameEvents.on("COLLECTIBLE_COLLECTED", e => {
+            if (e.kind === "SOUL") {
+                addSouls(e.value);
+            }
         });
 
         return () => {
             offGameOver();
             offEnemyKilled();
             offDamage()
+            offCollectible()
+            offCollectibleSpawn();
         }
 
     }, [])
@@ -103,7 +123,9 @@ export default function GameWorld() {
                 const relicPos = { x: screen.w / 2, y: screen.h / 2 };
 
                 setEnemies(prev => updateEnemies(prev, dt, relicPos));
+                setCollectibles(prev => updateCollectibles(prev, dt))
                 emitQueueEvents();
+                emitQueuedCollectibleEvents();
             };
 
             raf = requestAnimationFrame(loop);
@@ -127,7 +149,11 @@ export default function GameWorld() {
             {enemies.map(e => (
                 <EnemyRenderer key={e.id} enemy={e} />
             ))}
-
+            {
+                collectibles.map(c => (
+                    <SoulPickup key={c.id} origin={c.position} />
+                ))
+            }
             {/* slice Line Renderer (debug mode) */}
             <DebugHitCanvas slices={debugSlicesRef.current} />
 

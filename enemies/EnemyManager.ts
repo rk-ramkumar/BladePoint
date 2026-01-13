@@ -1,8 +1,7 @@
 import { Enemy, EnemyState, EnemyType } from "./EnemyTypes";
 import { createEnemy } from "./EnemyFactory";
 import { DamageShape, gameEvents } from "@/game/GameEvents";
-import { moveTowards, Vec2 } from "@/utils/math";
-import { lineCircleHit } from "@/utils/geometry";
+import { moveTowards, resolveHit } from "@/utils/math";
 import { audioManager } from "@/sound/AudioManager";
 
 export type EnemyUpdateResult = {
@@ -105,44 +104,6 @@ export function emitQueueEvents() {
   }
 }
 
-//Helper
-function getDistance(from: Vec2, to: Vec2) {
-  return Math.hypot(from.x - to.x, from.y - to.y);
-}
-
-function resolveHit(shape: DamageShape, enemy: Enemy): boolean {
-  let hit = false;
-
-  switch (shape.type) {
-    case "LINE":
-      hit = lineCircleHit(
-        shape.start,
-        shape.end,
-        enemy.position,
-        enemy.width / 2
-      );
-      break;
-
-    case "POINT":
-      hit =
-        getDistance(
-          { x: enemy.position.x, y: enemy.position.y },
-          { x: shape.position.x, y: shape.position.y }
-        ) < shape.radius;
-      break;
-
-    case "CIRCLE":
-      hit =
-        getDistance(
-          { x: enemy.position.x, y: enemy.position.y },
-          { x: shape.center.x, y: shape.center.y }
-        ) < shape.radius;
-      break;
-  }
-
-  return hit;
-}
-
 export function applyDamage(
   enemies: Enemy[],
   shape: DamageShape,
@@ -156,6 +117,12 @@ export function applyDamage(
     if (!hit) return enemy;
 
     const nextHp = enemy.hp - damage;
+
+    eventsToEmit.push({
+      type: "PLAYER_HIT",
+      damage: damage,
+      hp: Math.max(nextHp, 0),
+    });
 
     if (nextHp <= 0) {
       audioManager.play("ENEMY_DEATH");

@@ -24,19 +24,31 @@ export default function Relic() {
     const proximityRef = useRef(0);
 
     useEffect(() => {
-        const off1 = gameEvents.on("ENEMY_ATTACK", e => {
+        const offEnemyAttack = gameEvents.on("ENEMY_ATTACK", e => {
             setHitFlash(true);
             setTimeout(() => setHitFlash(false), 250);
             setHp(h => Math.max(0, h - e.damage));
         });
 
-        const off2 = gameEvents.on("ENEMY_NEAR_RELIC", e => {
+        const offEnemyNearRelic = gameEvents.on("ENEMY_NEAR_RELIC", e => {
             proximityRef.current = Math.max(proximityRef.current, e.intensity);
         });
 
+        const offEnemyKilled = gameEvents.on("PLAYER_HIT", e => {
+            if (e.hp === 0)
+                gameEvents.emit({
+                    type: "SPAWN_COLLECTIBLE",
+                    kind: "SOUL",
+                    value: {
+                        amount: 1 + Math.floor(Math.random() * 2)
+                    }
+                })
+        })
+
         return () => {
-            off1();
-            off2();
+            offEnemyAttack();
+            offEnemyNearRelic();
+            offEnemyKilled()
         };
     }, []);
 
