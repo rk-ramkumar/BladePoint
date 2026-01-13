@@ -16,7 +16,6 @@ export type EnemyUpdateResult = {
 
 const RELIC_RADIUS = 60;
 const PROXIMITY_RADIUS = 220;
-const ENEMY_RADIUS = 40;
 
 let eventsToEmit: any[] = [];
 
@@ -87,10 +86,12 @@ export function updateEnemies(
         damage: enemy.damage,
         sourceId: enemy.id,
       });
-      enemy.state = EnemyState.Attacking;
+      audioManager.play("RELIC_HIT");
+      audioManager.play("ENEMY_BURN");
+      enemy.state = EnemyState.Dying;
+      enemy.deathTimer = 2;
       continue;
     }
-
     next.push({ ...enemy, position: pos });
   }
 

@@ -54,7 +54,7 @@ export default function EnemyRenderer({ enemy }: { enemy: Enemy }) {
                     pointerEvents: "none"
                 }}
             >
-                {enemy.hp || ""}
+                {enemy.state !== EnemyState.Dying && enemy.hp || ""}
             </div>
         </div>
     );

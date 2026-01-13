@@ -4,7 +4,9 @@ export type SoundKey =
   | "KATANA_SWING"
   | "ENEMY_SCREAM"
   | "ENEMY_HIT"
-  | "ENEMY_DEATH";
+  | "ENEMY_DEATH"
+  | "RELIC_HIT"
+  | "ENEMY_BURN";
 
 type SoundPool = HTMLAudioElement[];
 
@@ -25,6 +27,8 @@ class AudioManager {
     this.load("ENEMY_SCREAM", "/assets/audio/enemy-scream.mp3");
     this.load("ENEMY_HIT", "/assets/audio/enemy-hit.mp3");
     this.load("ENEMY_DEATH", "/assets/audio/enemy-death.mp3");
+    this.load("ENEMY_BURN", "/assets/audio/burn-flesh.mp3");
+    this.load("RELIC_HIT", "/assets/audio/relic-hit.mp3");
   }
 
   private load(key: SoundKey, src: string, poolSize = 5) {
