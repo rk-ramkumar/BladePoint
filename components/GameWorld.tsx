@@ -1,10 +1,8 @@
 'use client'
 import { useEffect, useRef, useState } from "react";
-import BackgroundLayer from "./BackGroundLayer";
 import { applyDamage, emitQueueEvents, spawnEnemy, updateEnemies } from "@/enemies/EnemyManager";
 import { Enemy } from "@/enemies/EnemyTypes";
 import EnemyRenderer from "./EnemyRenderer";
-import Relic from "./Relic";
 import { gameEvents } from "@/game/GameEvents";
 import DebugHitCanvas from "./DebugHitCanvas";
 import { audioManager } from "@/sound/AudioManager";
@@ -125,8 +123,6 @@ export default function GameWorld() {
 
     return (
         <>
-            <BackgroundLayer {...{ stage }} />
-            <Relic />
             {enemies.map(e => (
                 <EnemyRenderer key={e.id} enemy={e} />
             ))}

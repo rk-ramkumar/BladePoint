@@ -1,3 +1,4 @@
+import { getHandLandmarker } from "@/game/GameLoader"
 import { useGame } from "@/game/GameState"
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision"
 import { useEffect, useRef } from "react"
@@ -62,11 +63,11 @@ const HandRecognizer = ({ setHandResults, canvasRef }: Props) => {
             video.onloadedmetadata = () => res();
         });
         syncCanvasWithVideo(video)
-        const handLandmarker = await initModel()
-        startDetection(handLandmarker, video);
+        const landmarker = getHandLandmarker();
+        detectLoop(landmarker, video);
     }
 
-    function startDetection(handLandmarker: HandLandmarker, video: HTMLVideoElement) {
+    function detectLoop(handLandmarker: HandLandmarker, video: HTMLVideoElement) {
         const loop = (now: number) => {
             if (!paused
                 && video.readyState >= 2
@@ -74,8 +75,8 @@ const HandRecognizer = ({ setHandResults, canvasRef }: Props) => {
             ) {
                 lastDetectTimeRef.current = now;
                 const result = handLandmarker.detectForVideo(video, now);
+                setHandResults(result)
                 drawHands(result)
-                processDetection(result);
             }
             rafRef.current = requestAnimationFrame(loop);
         };
@@ -83,9 +84,6 @@ const HandRecognizer = ({ setHandResults, canvasRef }: Props) => {
         rafRef.current = requestAnimationFrame(loop);
     }
 
-    function processDetection(detection: HandLandmarkerResult) {
-        setHandResults(detection)
-    }
 
     async function startCamera() {
         if (streamRef.current) return;

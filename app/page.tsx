@@ -1,58 +1,28 @@
-'use client'
-import GameWorld from "@/components/GameWorld";
-import HandRecognizer from "@/components/HandRecognizer";
-import { PauseButton } from "@/components/PauseButton";
-import { SettingsButton } from "@/components/SettingsButton";
-import { WeaponRenderer } from "@/components/WeaponRenderer";
-import { useGame } from "@/game/GameState";
-import { GestureIntent, getGestureIntent } from "@/utils/gestures";
-import { HandLandmarkerResult, NormalizedLandmark } from "@mediapipe/tasks-vision";
-import { useRef, useState } from "react";
+'use client';
 
+import { useState } from "react";
+import HomeScreen from "@/screens/HomeScreen";
+import LoadingScreen from "@/screens/LoadingScreen";
+import PlayGroundScreen from "@/screens/PlayGroundScreen";
+import WorldLayer from "@/components/WorldLayer";
+
+type Screen = "HOME" | "LOADING" | "GAME";
 
 export default function Home() {
-  const [intent, setIntent] = useState<GestureIntent | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const prevPinchRef = useRef(false);
-  const { paused } = useGame();
-
-
-  const setHandResults = (result: HandLandmarkerResult) => {
-    if (result.landmarks.length > 0) {
-      const hand = result.landmarks[0];
-      const handedness = result.handedness[0][0].displayName.toLowerCase()
-      const gestureIntent = getGestureIntent(
-        hand,
-        prevPinchRef.current,
-        handedness
-      );
-      prevPinchRef.current = gestureIntent.triggerDown;
-      setIntent(gestureIntent);
-    }
-  }
-
+  const [screen, setScreen] = useState<Screen>("HOME");
 
   return (
     <>
-      {/* GAME WORLD (background + enemies) */}
-      <GameWorld />
+      <WorldLayer visible={screen === "GAME"} />
+      {screen === "HOME" && (
+        <HomeScreen onPlay={() => setScreen("LOADING")} />
+      )}
 
-      {/* HUD + weapon */}
-      <div className="fixed inset-0 pointer-events-none z-50">
-        <div className="fixed w-32 bottom-1 right-1">
-          <HandRecognizer {...{ setHandResults, canvasRef }} />
-          {paused && <div className="text-center text-white">Resume To Play</div>}
-        </div>
+      {screen === "LOADING" && (
+        <LoadingScreen onDone={() => setScreen("GAME")} />
+      )}
 
-        <PauseButton />
-        <SettingsButton />
-        <canvas
-          ref={canvasRef}
-          className="w-full pointer-events-none transform scale-x-[-1]"
-        />
-      </div>
-
-      <WeaponRenderer {...{ intent }} />
+      {screen === "GAME" && <PlayGroundScreen />}
     </>
   );
 }
