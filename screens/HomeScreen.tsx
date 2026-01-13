@@ -27,7 +27,7 @@ export default function HomeScreen({ onPlay }: { onPlay: () => void }) {
           animate={{ opacity: 1, y: 0 }}
           className="text-6xl font-extrabold tracking-widest"
         >
-          HAND RITUAL
+          HAND OF RUIN
         </motion.h1>
         <RealmPreviewCard onClick={() => setShowRealmSelect(true)} />
         <PlayButton onClick={onPlay} />

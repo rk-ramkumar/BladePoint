@@ -13,49 +13,49 @@ export default function BackgrounSelect({ onSelect }: { onSelect: () => void }) 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+                className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4"
             >
                 <motion.div
-                    initial={{ scale: 0.9, y: 30 }}
+                    initial={{ scale: 0.95, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
-                    exit={{ scale: 0.9, y: 30 }}
+                    exit={{ scale: 0.95, y: 20 }}
                     transition={{ type: "spring", stiffness: 120 }}
-                    className="bg-zinc-900 p-8 rounded-2xl border border-white/20"
+                    className="w-full max-w-4xl bg-zinc-900 rounded-2xl border border-white/20 p-4 sm:p-6 md:p-8"
                 >
-                    <h2 className="text-3xl mb-6 text-center font-bold">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl mb-4 sm:mb-6 text-center font-bold">
                         Choose Your Realm
                     </h2>
 
-                    <div className="flex gap-6 mb-8">
+                    <div
+                        className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 mb-6 max-h-[60vh] overflow-y-auto overflow-x-hidden p-3"
+                    >
                         {BACKGROUNDS.map(bg => {
                             const selected = bg.id === background.id;
 
                             return (
                                 <motion.div
                                     key={bg.id}
-                                    whileHover={{ scale: bg.locked ? 1 : 1.05 }}
+                                    whileHover={!bg.locked ? { scale: 1.03 } : undefined}
                                     onClick={() => !bg.locked && setBackground(bg)}
+                                    className={
+                                        `relative aspect-video rounded-xl overflow-hidden cursor-pointer border 
+                                        ${selected ? "border-cyan-400" : "border-white/20"} ${bg.locked ? "opacity-50 grayscale" : ""} `
+                                    }
                                     style={{
-                                        width: 220,
-                                        height: 130,
                                         backgroundImage: `url(${bg.image})`,
                                         backgroundSize: "cover",
                                         backgroundPosition: "center",
-                                        borderRadius: 12,
-                                        cursor: bg.locked ? "not-allowed" : "pointer",
-                                        boxShadow: selected
-                                            ? "0 0 30px rgba(100,200,255,0.9)"
-                                            : "0 0 12px rgba(0,0,0,0.6)",
-                                        filter: bg.locked
-                                            ? "grayscale(1) brightness(0.5)"
-                                            : "none",
-                                        border: selected
-                                            ? "3px solid cyan"
-                                            : "2px solid rgba(255,255,255,0.2)"
                                     }}
                                 >
+                                    {/* overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+
+                                    <div className="absolute bottom-2 left-3 text-sm sm:text-base font-semibold text-cyan-300">
+                                        {bg.name}
+                                    </div>
+
                                     {bg.locked && (
-                                        <div className="w-full h-full flex items-center justify-center text-lg font-bold">
+                                        <div className="absolute inset-0 flex items-center justify-center text-lg font-bold">
                                             🔒 Locked
                                         </div>
                                     )}
@@ -68,8 +68,8 @@ export default function BackgrounSelect({ onSelect }: { onSelect: () => void }) 
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="px-6 py-2 rounded-full bg-cyan-500 text-black"
-                            onClick={() => onSelect()}
+                            className="px-6 py-2 rounded-md bg-cyan-500 text-black font-semibold"
+                            onClick={onSelect}
                         >
                             Confirm
                         </motion.button>
