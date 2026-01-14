@@ -1,6 +1,6 @@
 'use client';
 
-const ITEMS = ["Store", "Weapons", "Vault", "Stats"];
+const ITEMS = ["Store", "Vault", "Stats"];
 
 export default function HomeNavBar() {
     return (

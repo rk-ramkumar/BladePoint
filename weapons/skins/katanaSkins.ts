@@ -46,7 +46,6 @@ export function initSlashImage(skin: WeaponSkin) {
   skin.slashProp.sprite = image;
 }
 
-// Helpers
 function getDefaultRotation(intent: GestureIntent) {
   if (intent.triggerPressed) {
     return -90;

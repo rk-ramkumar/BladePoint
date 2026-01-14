@@ -1,22 +1,23 @@
 'use client'
+
 import { useEffect, useRef } from "react";
 import { WeaponModel } from "./WeaponModel";
 import { WeaponController } from "@/weapons/WeaponController";
-import { Katana } from "@/weapons/Katana";
-import { KatanaBloody, KatanaClean } from "@/weapons/skins/katanaSkins";
 import { GestureIntent } from "@/utils/gestures";
-import { WeaponSkin } from "@/weapons/WeaponSkin";
 import SliceCanvas from "./SliceCanvas";
+import { SelectedWeapon } from "@/app/page";
 
 type Props = {
     intent: GestureIntent | null;
+    selectedWeapon: SelectedWeapon;
 };
 
-let weaponSkin: WeaponSkin = KatanaBloody;
-
-export function WeaponRenderer({ intent }: Props) {
+export function WeaponRenderer({ intent, selectedWeapon }: Props) {
     const controllerRef = useRef(new WeaponController());
-    const weaponRef = useRef(new Katana({ skin: weaponSkin }))
+
+    const weaponRef = useRef(
+        new selectedWeapon.weaponType({ skin: selectedWeapon.skin })
+    );
 
     useEffect(() => {
         controllerRef.current.equip(weaponRef.current);
@@ -24,17 +25,16 @@ export function WeaponRenderer({ intent }: Props) {
 
     useEffect(() => {
         if (!intent) return;
-
         controllerRef.current.update(intent);
     }, [intent]);
 
     return (
         <div className="fixed inset-0">
             <WeaponModel
-                skin={weaponSkin}
+                skin={selectedWeapon.skin}
                 weapon={weaponRef.current}
             />
-            <SliceCanvas {...{ weaponSkin }} />
+            <SliceCanvas {...{ weaponSkin: selectedWeapon.skin }} />
         </div>
     );
 }

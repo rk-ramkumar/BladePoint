@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import PlayButton from "@/components/home/PlayButton";
@@ -10,10 +10,37 @@ import BackgrounSelect from "@/components/BackgrounSelect";
 import HomeHeader from "@/components/home/HomeHeader";
 import HomeSpecter from "@/components/home/HomeSpecter";
 import RenameModal from "@/components/home/RenameModal";
+import { SelectedWeapon } from "@/app/page";
+import WeaponPreviewCard from "@/components/home/WeaponPreviewCard";
+import WeaponSelectionModal from "@/components/home/WeaponSelectionModal";
 
-export default function HomeScreen({ onPlay }: { onPlay: () => void }) {
+interface HomeScreenProps {
+  onPlay: (weaponSelection: SelectedWeapon) => void;
+  initialSelection: SelectedWeapon | null;
+}
+
+export default function HomeScreen({ onPlay, initialSelection }: HomeScreenProps) {
   const [showRealmSelect, setShowRealmSelect] = useState(false);
   const [onEdit, setOnEdit] = useState(false);
+  const [showWeaponSelect, setShowWeaponSelect] = useState(false);
+  const [selectedWeapon, setSelectedWeapon] = useState<SelectedWeapon | null>(initialSelection);
+
+  useEffect(() => {
+    setSelectedWeapon(initialSelection);
+  }, [initialSelection]);
+
+  const handleWeaponSelect = (weaponSelection: SelectedWeapon) => {
+    setSelectedWeapon(weaponSelection);
+    localStorage.setItem("selectedWeapon", JSON.stringify(weaponSelection));
+  };
+
+  const handlePlay = () => {
+    if (selectedWeapon) {
+      onPlay(selectedWeapon);
+    } else {
+      setShowWeaponSelect(true);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-black to-purple-950/30 text-white overflow-hidden">
@@ -78,14 +105,22 @@ export default function HomeScreen({ onPlay }: { onPlay: () => void }) {
               animate={{ y: [0, 5, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
               className="absolute -top-12 left-1/2 -translate-x-1/2 text-purple-300 text-sm font-semibold 
-                       bg-gradient-to-b from-purple-900/50 to-transparent px-4 py-2 rounded-full 
-                       border border-purple-500/30 w-8/12 text-center"
+              bg-gradient-to-b from-purple-900/50 to-transparent px-4 py-2 rounded-full 
+              border border-purple-500/30 w-8/12 text-center"
             >
-              ▼ BEGIN YOUR JOURNEY ▼
+              {selectedWeapon ? (
+                `▼ BEGIN WITH ${selectedWeapon.skin.id.replace('_', ' ').toUpperCase()} ▼`
+              ) : (
+                "▼ SELECT WEAPON TO BEGIN ▼"
+              )}
             </motion.div>
 
-            <PlayButton onClick={onPlay} />
+            <PlayButton onClick={handlePlay} />
           </motion.div>
+          <WeaponPreviewCard
+            selectedWeapon={selectedWeapon}
+            onClick={() => setShowWeaponSelect(true)}
+          />
         </div>
       </div>
       <HomeSpecter setOnEdit={setOnEdit} />
@@ -97,6 +132,14 @@ export default function HomeScreen({ onPlay }: { onPlay: () => void }) {
           <BackgrounSelect onSelect={() => setShowRealmSelect(false)} />
         )}
         {onEdit && <RenameModal onClose={() => setOnEdit(false)} />}
+        {showWeaponSelect && (
+          <WeaponSelectionModal
+            isOpen={showWeaponSelect}
+            onClose={() => setShowWeaponSelect(false)}
+            onSelect={handleWeaponSelect}
+            currentSelection={selectedWeapon}
+          />
+        )}
       </AnimatePresence>
     </div>
   );

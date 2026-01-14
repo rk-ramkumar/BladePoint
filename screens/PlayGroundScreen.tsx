@@ -1,22 +1,24 @@
-'use client'
+'use client';
+
 import GameWorld from "@/components/GameWorld";
 import HandRecognizer from "@/components/HandRecognizer";
 import HomeHeader from "@/components/home/HomeHeader";
-import { PauseButton } from "@/components/PauseButton";
-import { SettingsButton } from "@/components/SettingsButton";
 import { WeaponRenderer } from "@/components/WeaponRenderer";
 import { useGame } from "@/game/GameState";
 import { GestureIntent, getGestureIntent } from "@/utils/gestures";
 import { HandLandmarkerResult } from "@mediapipe/tasks-vision";
 import { useRef, useState } from "react";
+import { SelectedWeapon } from "@/app/page";
 
+interface PlayGroundScreenProps {
+    selectedWeapon: SelectedWeapon;
+}
 
-export default function PlayGroundScreen() {
+export default function PlayGroundScreen({ selectedWeapon }: PlayGroundScreenProps) {
     const [intent, setIntent] = useState<GestureIntent | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const prevPinchRef = useRef(false);
     const { paused } = useGame();
-
 
     const setHandResults = (result: HandLandmarkerResult) => {
         if (result.landmarks.length > 0) {
@@ -45,7 +47,6 @@ export default function PlayGroundScreen() {
                     {paused && <div className="text-center text-white">Resume To Play</div>}
                 </div>
 
-                {/* <PauseButton /> */}
                 <HomeHeader />
                 <canvas
                     ref={canvasRef}
@@ -53,7 +54,10 @@ export default function PlayGroundScreen() {
                 />
             </div>
 
-            <WeaponRenderer {...{ intent }} />
+            <WeaponRenderer
+                intent={intent}
+                selectedWeapon={selectedWeapon}
+            />
         </>
     );
 }
