@@ -27,7 +27,6 @@ export function useCounter(target: number, duration = 500) {
             if (!startTime) startTime = timestamp;
             const elapsed = timestamp - startTime;
             const progress = Math.min(elapsed / duration, 1);
-
             const eased = 1 - Math.pow(1 - progress, 4);
             const currentValue = start + (difference * eased);
             setCount(Math.floor(currentValue));
@@ -59,96 +58,98 @@ export default function SoulDisplay() {
     const [change, setChange] = useState(0);
     const timeoutRef = useRef<NodeJS.Timeout>(null);
 
-    const formatNumber = (num: number) => {
-        return num.toLocaleString();
-    };
-
     useEffect(() => {
         const difference = souls - prevSoulsRef.current;
-
         if (difference !== 0) {
             setChange(difference);
             prevSoulsRef.current = souls;
-
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-
-            timeoutRef.current = setTimeout(() => {
-                console.log("Change indicator timeout completed");
-                setChange(0);
-            }, 1000);
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            timeoutRef.current = setTimeout(() => setChange(0), 1000);
         }
     }, [souls]);
 
     useEffect(() => {
         return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
         };
     }, []);
 
     return (
-        <div className="relative">
-            <div className="flex items-center gap-2 bg-gradient-to-r from-purple-900/30 via-black/40 to-purple-900/30 
-                          px-4 py-2 rounded-xl border border-purple-500/30 shadow-lg shadow-purple-500/10 
-                          backdrop-blur-sm min-w-[120px]">
+        <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="relative group"
+        >
+            <div className="flex items-center gap-3 bg-gradient-to-r from-gray-900/90 to-purple-900/50 
+                          px-5 py-3 rounded-2xl border border-purple-500/40 
+                          shadow-2xl shadow-purple-900/30 backdrop-blur-md 
+                          hover:border-purple-400/60 transition-colors">
+                {/* Animated soul icon */}
                 <motion.div
                     animate={{
-                        scale: [1, 1.1, 1],
-                        rotate: [0, 5, -5, 0]
+                        y: [0, -3, 0],
+                        rotate: [0, 5, 0, -5, 0],
                     }}
-                    transition={{ duration: 0.5 }}
-                    key={souls}
+                    transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                    className="relative"
                 >
                     <Image
                         src="/assets/soul/purple-orb.png"
                         alt="Souls"
-                        width={28}
-                        height={28}
-                        className="drop-shadow-[0_0_6px_rgba(168,85,247,0.7)]"
+                        width={32}
+                        height={32}
+                        className="drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]"
+                    />
+                    {/* Pulsing glow */}
+                    <motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="absolute inset-0 w-full h-full bg-purple-500 rounded-full blur-md -z-10"
                     />
                 </motion.div>
 
+                {/* Counter */}
                 <div className="relative">
                     <motion.span
                         key={displayCount}
-                        initial={{ y: change > 0 ? -10 : 10, opacity: 0.5 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.2 }}
-                        className="text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 
-                                 bg-clip-text text-transparent tracking-wider"
+                        initial={{ y: change > 0 ? -8 : 8 }}
+                        animate={{ y: 0 }}
+                        className="text-2xl font-black bg-gradient-to-b from-purple-200 to-pink-200 
+                                 bg-clip-text text-transparent tracking-tight font-mono"
                     >
-                        {formatNumber(displayCount)}
+                        {displayCount.toLocaleString()}
                     </motion.span>
 
+                    {/* Change indicator */}
                     {change !== 0 && (
-                        <motion.span
-                            initial={{ y: 0, opacity: 0, scale: 0 }}
-                            animate={{ y: change > 0 ? -20 : 20, opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0 }}
-                            className={`absolute left-full ml-2 px-2 py-1 rounded-md text-xs font-bold ${change > 0
-                                ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                                : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                        <motion.div
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className={`absolute -top-6 right-0 px-3 py-1 rounded-full text-sm font-bold 
+                                     ${change > 0
+                                    ? 'bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-gradient-to-r from-rose-500/20 to-red-500/20 text-rose-300 border border-rose-500/30'
                                 }`}
                         >
-                            {change > 0 ? '+' : ''}{change}
-                        </motion.span>
+                            {change > 0 ? '↑ +' : '↓ '}{Math.abs(change)}
+                        </motion.div>
                     )}
                 </div>
             </div>
 
-            {change > 0 && (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 0.4, scale: 1.2 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-pink-500/30 
-                             rounded-xl blur-lg -z-10"
-                />
-            )}
-        </div>
+            <div className="absolute left-full top-1/2 -translate-x-1/2 mb-2 px-3 py-2 
+                          bg-gray-900/90 backdrop-blur-md rounded-lg border border-purple-500/30 
+                          text-xs text-purple-200 opacity-0 group-hover:opacity-100 transition-opacity 
+                          whitespace-nowrap pointer-events-none">
+                Collected souls
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 
+                              border-transparent border-t-gray-900/90" />
+            </div>
+        </motion.div>
     );
 }

@@ -8,13 +8,13 @@ export default function PlayerNameTag({ onEdit }: { onEdit: () => void }) {
     return (
         <motion.div
             animate={{
-                y: [-8, 8, -8],
+                y: [-10, 10, -10],
                 skewY: [12],
-                opacity: [0.6, 1, 0.6],
+                opacity: [0.7, 1, 0.7],
                 filter: ["brightness(1)", "brightness(2)", "brightness(1)"]
             }}
             transition={{
-                duration: 8,
+                duration: 6,
                 repeat: Infinity,
                 ease: "easeInOut",
             }}
