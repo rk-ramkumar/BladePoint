@@ -34,11 +34,11 @@ export default function HomeSpecter({ setOnEdit }: { setOnEdit: (val: boolean) =
                         repeat: Infinity,
                         ease: "easeInOut",
                     }}
-                    className="absolute left-[8%] top-1/2 -translate-y-1/2"
+                    className="absolute left-[8%] top-1/2 -translate-y-1/2 "
                     style={{
                         width: 520,
                         height: 720,
-                        backgroundColor: "#d8b4fe",
+                        backgroundColor: "red",
                         WebkitMaskImage: "url(/assets/ui/black-cloak-specter.png)",
                         WebkitMaskRepeat: "no-repeat",
                         WebkitMaskPosition: "center",

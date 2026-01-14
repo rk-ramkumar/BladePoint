@@ -20,11 +20,11 @@ export default function RenameModal({ onClose }: { onClose: () => void }) {
             <motion.div
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
-                className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-2xl border border-purple-500/30 
+                className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-2xl border border-cyan-500/30 
                 shadow-2xl shadow-purple-500/20 max-w-md w-full mx-4"
                 onClick={(e) => e.stopPropagation()}
             >
-                <h2 className="text-2xl font-bold text-green-300 mb-4">
+                <h2 className="text-2xl font-bold text-white mb-4">
                     Rename Your Character
                 </h2>
 
@@ -38,7 +38,7 @@ export default function RenameModal({ onClose }: { onClose: () => void }) {
                         }
                     }}
                     className="w-full px-4 py-3 bg-black/50 border border-blue-500/50 
-                    rounded-lg text-white text-lg focus:outline-none focus:ring-2 
+                    rounded-lg text-white text-lg focus:outline-none focus:ring-1 
                     focus:ring-purple-200 focus:border-transparent"
                     placeholder="Enter your name"
                     autoFocus
@@ -48,7 +48,7 @@ export default function RenameModal({ onClose }: { onClose: () => void }) {
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="flex-1 px-4 py-3px-6 py-2 rounded-md bg-cyan-500 text-green-300 font-semibold"
+                        className="flex-1 px-4 py-3px-6 py-2 rounded-md bg-cyan-300 text-cyan-800 font-semibold "
                         onClick={() => {
                             setPlayerName(name.trim());
                             onClose();

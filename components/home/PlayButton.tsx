@@ -17,7 +17,7 @@ export default function PlayButton({ onClick }: { onClick: () => void }) {
             }}
             transition={{ duration: 2, repeat: Infinity }}
             onClick={onClick}
-            className="cursor-pointer px-16 py-4 text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 border-4 border-purple-300/40"
+            className="cursor-pointer px-16 py-4 text-2xl font-bold bg-gradient-to-r from-purple-300 to-purple-400 border-4 border-purple-300/40"
         >
             <div className="flex items-center gap-1.5">
                 <div

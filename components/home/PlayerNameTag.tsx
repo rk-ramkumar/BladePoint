@@ -10,7 +10,7 @@ export default function PlayerNameTag({ onEdit }: { onEdit: () => void }) {
             animate={{
                 y: [-8, 8, -8],
                 skewY: [12],
-                opacity: [0.96, 1, 0.96],
+                opacity: [0.6, 1, 0.6],
                 filter: ["brightness(1)", "brightness(2)", "brightness(1)"]
             }}
             transition={{
@@ -18,8 +18,8 @@ export default function PlayerNameTag({ onEdit }: { onEdit: () => void }) {
                 repeat: Infinity,
                 ease: "easeInOut",
             }}
-            className="cursor-pointer pointer-events-auto text-purple-300 text-3xl md:text-4xl font-semibold 
-            hover:text-purple-100 skew-y-12 px-4 py-2
+            className="cursor-pointer pointer-events-auto text-red-300 text-3xl md:text-4xl font-semibold 
+            hover:text-red-100 skew-y-12 px-4 py-2
             text-wrap overflow-hidden text-ellipsis min-w-35 max-w-40 rounded-lg"
             onClick={onEdit}
             suppressHydrationWarning
