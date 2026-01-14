@@ -1,12 +1,18 @@
 import { CollectibleKind, DamageShape, gameEvents } from "@/game/GameEvents";
-import { resolveHit } from "@/utils/math";
+import { resolveHit, Vec2 } from "@/utils/math";
+
+export type CollectibleState = "ALIVE" | "HIT" | "COLLECTED";
 
 export type Collectible = {
   id: string;
-  position: { x: number; y: number };
+  position: Vec2;
   radius: number;
   kind: CollectibleKind;
-  life: number;
+  state: CollectibleState;
+  velocity: Vec2;
+  life: number; // Total lifetime in seconds
+  hitTimer?: number; // Timer for hit animation (seconds)
+  deathTimer?: number;
 };
 
 let eventsToEmit: any[] = [];
@@ -23,14 +29,21 @@ export function createCollectible(
   kind: CollectibleKind,
   position: { x: number; y: number },
   radius: number = 18,
-  life: number = 1
+  life: number = 5
 ): Collectible {
+  const velocity = {
+    x: ((Math.random() - 0.5) * 440) / 5.0,
+    y: (-80 - Math.random() * 180) / 5.0,
+  };
   return {
     id: crypto.randomUUID(),
     position,
+    velocity,
     radius,
     kind,
+    state: "ALIVE",
     life,
+    deathTimer: life,
   };
 }
 
@@ -40,7 +53,6 @@ export function spawnCollectibles(
 ): Collectible[] {
   switch (kind) {
     case "SOUL":
-      console.log(value);
       return Array.from({ length: value.amount }).map(() =>
         createCollectible(
           "SOUL",
@@ -49,19 +61,52 @@ export function spawnCollectibles(
           5
         )
       );
+    default:
+      return [];
   }
 }
 
-export function updateCollectibles(list: Collectible[], dt: number) {
+export function updateCollectibles(
+  list: Collectible[],
+  dt: number
+): Collectible[] {
   const remaining: Collectible[] = [];
-  list.map((c) => {
-    const rt = c.life - dt;
-    c.life = rt;
-    if (rt <= 0) {
-      return;
-    }
 
-    remaining.push(c);
+  list.forEach((c) => {
+    let newCollectible = { ...c };
+
+    switch (c.state) {
+      case "HIT":
+        if (c.hitTimer !== undefined) {
+          newCollectible.hitTimer = c.hitTimer - dt;
+          if (newCollectible.hitTimer <= 0) {
+            newCollectible.state = "COLLECTED";
+          } else {
+            remaining.push(newCollectible);
+          }
+        }
+        break;
+
+      case "ALIVE":
+        if (c.deathTimer !== undefined) {
+          newCollectible.deathTimer = c.deathTimer - dt;
+
+          newCollectible.position = {
+            x: c.position.x + c.velocity.x * dt,
+            y: c.position.y + c.velocity.y * dt,
+          };
+
+          if (newCollectible.deathTimer <= 0) {
+            newCollectible.state = "COLLECTED";
+          } else {
+            remaining.push(newCollectible);
+          }
+        }
+        break;
+
+      case "COLLECTED":
+        break;
+    }
   });
 
   return remaining;
@@ -69,19 +114,33 @@ export function updateCollectibles(list: Collectible[], dt: number) {
 
 export function applyCollectibleHit(list: Collectible[], shape: DamageShape) {
   const collected: string[] = [];
+  const remaining: Collectible[] = [];
 
-  const remaining = list.filter((c) => {
+  list.forEach((c) => {
+    if (c.state === "COLLECTED") {
+      return;
+    }
+
     const hit = resolveHit(shape, c);
 
-    if (hit) {
+    if (hit && c.state === "ALIVE") {
+      const hitCollectible = {
+        ...c,
+        state: "HIT" as CollectibleState,
+        hitTimer: 0.3,
+      };
+
       eventsToEmit.push({
         type: "COLLECTIBLE_COLLECTED",
         kind: c.kind,
         value: onHit[c.kind](c),
       });
+
       collected.push(c.id);
+      remaining.push(hitCollectible);
+    } else {
+      remaining.push(c);
     }
-    return !hit;
   });
 
   return { remaining, collected };
@@ -92,4 +151,12 @@ export function emitQueuedCollectibleEvents() {
     eventsToEmit.map((e) => gameEvents.emit(e));
     eventsToEmit = [];
   }
+}
+
+export function getRenderableCollectibles(list: Collectible[]) {
+  return list.filter((c) => c.state !== "COLLECTED");
+}
+
+export function shouldRemoveCollectible(c: Collectible) {
+  return c.state === "COLLECTED";
 }

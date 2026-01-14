@@ -45,16 +45,18 @@ export default function RenameModal({ onClose }: { onClose: () => void }) {
                 />
 
                 <div className="flex gap-3 mt-6">
-                    <button
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex-1 px-4 py-3px-6 py-2 rounded-md bg-cyan-500 text-green-300 font-semibold"
                         onClick={() => {
                             setPlayerName(name.trim());
                             onClose();
                         }}
-                        className="flex-1 px-4 py-3 bg-gradient-to-r from-green-400 to-green-500/80 
-                        text-white font-semibold rounded-lg hover:opacity-90 transition"
                     >
                         Save Name
-                    </button>
+                    </motion.button>
+                    {/* </div> */}
                     <button
                         onClick={onClose}
                         className="px-6 py-3 bg-gray-800 text-gray-300 font-semibold 

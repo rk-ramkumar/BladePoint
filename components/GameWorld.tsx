@@ -1,11 +1,10 @@
 'use client'
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { applyDamage, emitQueueEvents, spawnEnemy, updateEnemies } from "@/enemies/EnemyManager";
 import { Enemy } from "@/enemies/EnemyTypes";
 import EnemyRenderer from "./EnemyRenderer";
 import { gameEvents } from "@/game/GameEvents";
 import DebugHitCanvas from "./DebugHitCanvas";
-import { audioManager } from "@/sound/AudioManager";
 import { useGame } from "@/game/GameState";
 import { applyCollectibleHit, Collectible, emitQueuedCollectibleEvents, spawnCollectibles, updateCollectibles } from "@/game/CollectibleManager";
 import SoulPickup from "./SoulPickup";
@@ -45,10 +44,8 @@ export default function GameWorld() {
                 });
             }
 
-            setCollectibles(prev => applyCollectibleHit(prev, e.shape).remaining)
-
-            setEnemies(prev =>
-                applyDamage(prev, e.shape, e.damage)
+            setCollectibles(prev => applyCollectibleHit(prev, e.shape).remaining);
+            setEnemies(prev => applyDamage(prev, e.shape, e.damage)
             );
         });
 
@@ -77,8 +74,6 @@ export default function GameWorld() {
 
     // Stage progression
     useEffect(() => {
-        audioManager.init();
-
         screenRef.current = {
             w: window.innerWidth,
             h: window.innerHeight
@@ -136,6 +131,17 @@ export default function GameWorld() {
         return () => cancelAnimationFrame(raf);
     }, []);
 
+    // Clean up collected collectibles periodically
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCollectibles(prev =>
+                prev.filter(c => c.state !== "COLLECTED")
+            );
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     if (gameOver) {
         return (
             <div className="fixed inset-0 bg-black text-red-500 flex items-center justify-center text-4xl">
@@ -143,17 +149,24 @@ export default function GameWorld() {
             </div>
         );
     }
+    const handleCollectibleComplete = useCallback((id: string) => {
+        setCollectibles(prev => prev.filter(c => c.id !== id));
+    }, []);
+
 
     return (
         <>
             {enemies.map(e => (
                 <EnemyRenderer key={e.id} enemy={e} />
             ))}
-            {
-                collectibles.map(c => (
-                    <SoulPickup key={c.id} origin={c.position} />
-                ))
-            }
+            {collectibles.map(c => (
+                <SoulPickup
+                    {...c}
+                    key={c.id}
+                    onComplete={() => handleCollectibleComplete(c.id)}
+                />
+            ))}
+
             {/* slice Line Renderer (debug mode) */}
             <DebugHitCanvas slices={debugSlicesRef.current} />
 

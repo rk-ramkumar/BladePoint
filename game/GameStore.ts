@@ -2,6 +2,7 @@ export type GameData = {
   souls: number;
   masterVolume: number;
   sfxVolume: number;
+  bgmVolume: number;
   playerName: string;
 };
 
@@ -9,6 +10,7 @@ export const DEFAULT_DATA: GameData = {
   souls: 0,
   masterVolume: 0.8,
   sfxVolume: 0.8,
+  bgmVolume: 0.8,
   playerName: "Player",
 };
 
