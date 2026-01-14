@@ -66,8 +66,6 @@ export default function HomeScreen({ onPlay, initialSelection }: HomeScreenProps
         />
       </div>
 
-
-
       <div className="relative flex flex-col items-center justify-center h-full gap-10 px-4">
         <motion.div
           initial={{ opacity: 0, y: -40 }}
